@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # 乳癌手術理賠套餐 agent（dev day 2026-11-07）
 
 ## 目的
@@ -34,6 +38,28 @@
 - `codex-analysis/` — Codex 對講義 116 頁的逐頁筆記與彙整報告（去識別化版）
 - `tools/codex/` — 重跑 Codex 批次分析的腳本與提示詞
 - `HANDOFF.md` — 進度、下一步、待查證清單
+
+## 開發與發布
+- 沒有 build、lint、測試框架、套件相依；改完 `src/index.html` 直接預覽或發布。
+- 本機預覽：`python3 tools/preview.py [port]`（預設 8765）→ http://localhost:8765/ 。腳本把 `src/index.html`
+  包進與 Artifact 發布時相同的外層 skeleton，寫到 `.preview/`（git 忽略）；`.claude/launch.json` 有同樣的 preview 設定。
+  本機沒有 `window.claude`，Claude 區塊會顯示「此環境不可用」，屬正常；要測 `sample` 必須發布後在 claude.ai 開。
+- `src/index.html` 是片段（`<title>`／`<link>`／`<style>`／內容／`<script>`），不含 `<html><body>`；外層由發布端加，不要自己補。
+- 發布：Artifact 工具，`file_path: src/index.html`、`url` 用 `HANDOFF.md` 記的網址、`capabilities: {sample: {}}`。
+- 重跑 Codex 講義分析：見 `tools/codex/README.md`（`pdftoppm` 轉 PNG → `bash tools/codex/run_all.sh`，需先改腳本開頭的 `SP` 路徑）。
+
+## 頁面架構（`src/index.html` 的 `<script>`，單一 IIFE）
+- 參考資料常數在最前面：`STAGES`、`OPTYPES`（含各術式預設自費手術費）、`CONSUMABLES`、`PTYPE`／`PFIELDS`／`PDEFAULT`（保單類型、欄位定義、預設值）、`EXAMPLE`（示範病患）。
+  新增保單類型＝在 `PTYPE`、`PFIELDS`、`PDEFAULT` 各加一筆，再到 `compute()` 處理給付邏輯。
+- 資料流：表單 → `state`（`localStorage` key `bca-breast-insurance-v1`，debounce 存檔）→ `ctxOf(state)` 得出情境旗標
+  （`dcis`／`endo`／`recon`／`alnd`…）→ `compute(s)` 算出自費、各保單給付、自付與提醒旗標 → `buildQuestions`／`buildDocs`／`buildFlow`／`buildCare`
+  → `render()`。`buildMarkdown()` 產生「複製全部」用的 Markdown。
+- 實支實付的核心在 `compute()` 內的 `applyReimb()`：依病房差額×天數、手術費、雜費限額分池扣抵，`overflow` 處理「手術費超額併入雜費」。
+- Claude 區塊：`claude.use('sample')` 取得函式；`basePrompt()` = 固定章節指示 + `caseJSON()`（病患／保單／試算結果）+ `RULES`。
+  `aiFail()` 處理未授權等錯誤碼並停用按鈕。
+- **兩處重複資料，改一邊要同步另一邊**：
+  - `data/consumables.json` 頁面不會讀取；`CONSUMABLES` 是內嵌副本（JSON 的 `suggest` 是字串標籤，頁面裡是 `c=>…` 函式）。改品項或價格時兩邊都改，`src` 標記也要一致。
+  - `RULES`（送給 Claude 的規則摘要）是 `knowledge/rules-tw-insurance.md` 的濃縮版；規則改動要同時更新兩者，且與 `compute()`／`buildQuestions()` 的判斷一致。
 
 ## 原則
 - 所有金額都是估算；頁面必須標示「以保單條款與保險公司核定為準、醫療決策以主治醫師為準」，不得寫「一定理賠」。
