@@ -8,6 +8,9 @@
 - 規則知識庫 `knowledge/rules-tw-insurance.md`：健保部分負擔與重大傷病、實支實付新舊制、手術險、癌症險分級、重大疾病險 2016 示範條款（第一期乳癌＝輕度）、勞保傷病給付、理賠文件。
 - 流程與自費清單 `knowledge/medical-center-bs-flow.md`；品項與預設價格 `data/consumables.json`。
 
+- 2026-11-07 新增「術後治療路徑與長期費用」卡：輸入加停經狀態、腫瘤大小；術前治療旗標與流程分支；GnRH／trastuzumab／pertuzumab／pembrolizumab 健保重點（待查證）；每次住院營養品與自費處方（講義 p.34、p.37）。依據見 `knowledge/adjuvant-nhi-nutrition.md`。
+- 2026-11-07 AI 撰寫加 Codex 本機流程（`tools/codex/write_package.sh`，範例個案實測約 2 分鐘、7 個章節完整）；新增 `tools/open_site.sh` 開網站。
+
 ## 進行中
 - `src/index.html`：左欄（病患與手術情境、住院與自費、身分與其他保障、保單清單），右欄（結算摘要、理賠對照表、提醒旗標、保險公司提問清單、文件清單、住院流程套餐、營養與照護、Claude 專屬套餐）。
 - Artifact URL：https://claude.ai/artifact/DqNGcmLHwzorC7t5KzTSQU （2026-11-07 首次發布，版本 1，capabilities sample；私人連結，分享由頁面 Share 選單操作；之後更新一律帶 `url`）
@@ -23,6 +26,11 @@
 - 原位癌是否符合重大傷病：工具預設不符合，依健保署最新公告為準。
 - 住院部分負擔實際金額：以 10% 估，依醫院帳單為準。
 - 乳房重建健保給付範圍：自體皮瓣手術費部分給付、植入物自費，依醫院說明。
+
+- 2026-11-07 已依藥品給付規定第 9 節（115/9/22 版）核對 trastuzumab、pertuzumab、T-DM1、pembrolizumab、olaparib、AI、CDK4/6。
+- 2026-11-07 依第 5 節（115/8/21 版）5.5.1 核對 GnRH 停經前輔助條件；術後治療卡的健保條件已全部對照條文。
+- 2026-11-07 加入三陽性（ER/PR＋、HER2＋）受體選項，trastuzumab 依受體與腫瘤大小自動判斷是否達健保門檻。
+- 漱口妥（Mucopads）講義價格數字不清。
 
 ## 去識別化規則
 所有文件與頁面只寫「醫學中心」；不寫院名、醫師姓名、分機、病房、工號、病歷號、網路路徑。`tools/codex/` 的提示詞已改為「醫學中心」；重跑後的產出要再去識別化才可放進專案。

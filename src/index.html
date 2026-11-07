@@ -4,172 +4,171 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
 <style>
-/* Layout: a two-pane workbench. Left pane = the case file (patient, surgery, policies), sticky on desktop.
-   Right pane = the generated 套餐, read top-down: settlement → line items → flags → phone script → documents → timeline → care → Claude. */
+/* Layout: left = one compact case card with three tabs (個案／自費／保單); right = three-number result strip, top alerts, then one tabbed output panel. One thing visible at a time. */
 :root{
-  --bg:#F3F6F5; --surface:#FFFFFF; --surface-2:#E8EFED; --fg:#16262A; --fg-muted:#5A6C6F; --line:#D2DDDA;
+  --bg:#F3F6F5; --surface:#FFFFFF; --surface-2:#EBF1EF; --fg:#16262A; --fg-muted:#5A6C6F; --line:#D8E2DF;
   --accent:#0E6E68; --accent-ink:#FFFFFF; --accent-soft:#D5EBE7;
   --ins:#6A3C6D; --ins-soft:#EFE3F0;
-  --nhi:#255B9C; --nhi-soft:#DCE8F6;
-  --ok:#2E7C4F; --ok-soft:#DCEFE2; --warn:#9A6300; --warn-soft:#FBEED0; --bad:#B13A3A; --bad-soft:#F7DDDD;
+  --ok:#2E7C4F; --ok-soft:#DCEFE2; --warn:#9A6300; --warn-soft:#FBEED0; --bad:#B13A3A; --bad-soft:#F7DDDD; --info:#255B9C; --info-soft:#DCE8F6;
   --font-body:"Noto Sans TC",-apple-system,"PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --font-display:"Noto Serif TC","Songti TC","PMingLiU",Georgia,serif;
-  --radius:10px; --shadow:0 1px 2px rgba(22,38,42,.06),0 10px 28px -20px rgba(22,38,42,.35);
+  --radius:12px;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#0F1A1B; --surface:#172426; --surface-2:#1E2E30; --fg:#E6EEEC; --fg-muted:#9DAFAD; --line:#2C3D40;
-    --accent:#4FC2B5; --accent-ink:#06211F; --accent-soft:#173B38;
-    --ins:#D8A8DC; --ins-soft:#3A2A3E; --nhi:#8FB8EA; --nhi-soft:#1E3550;
-    --ok:#6DCB8F; --ok-soft:#1E3A2A; --warn:#E6B65B; --warn-soft:#3E3115; --bad:#F08B8B; --bad-soft:#4A2323;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -20px rgba(0,0,0,.6); color-scheme:dark;
+    --accent:#4FC2B5; --accent-ink:#06211F; --accent-soft:#173B38; --ins:#D8A8DC; --ins-soft:#3A2A3E;
+    --ok:#6DCB8F; --ok-soft:#1E3A2A; --warn:#E6B65B; --warn-soft:#3E3115; --bad:#F08B8B; --bad-soft:#4A2323; --info:#8FB8EA; --info-soft:#1E3550; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --bg:#0F1A1B; --surface:#172426; --surface-2:#1E2E30; --fg:#E6EEEC; --fg-muted:#9DAFAD; --line:#2C3D40;
-  --accent:#4FC2B5; --accent-ink:#06211F; --accent-soft:#173B38;
-  --ins:#D8A8DC; --ins-soft:#3A2A3E; --nhi:#8FB8EA; --nhi-soft:#1E3550;
-  --ok:#6DCB8F; --ok-soft:#1E3A2A; --warn:#E6B65B; --warn-soft:#3E3115; --bad:#F08B8B; --bad-soft:#4A2323;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -20px rgba(0,0,0,.6); color-scheme:dark;
+  --accent:#4FC2B5; --accent-ink:#06211F; --accent-soft:#173B38; --ins:#D8A8DC; --ins-soft:#3A2A3E;
+  --ok:#6DCB8F; --ok-soft:#1E3A2A; --warn:#E6B65B; --warn-soft:#3E3115; --bad:#F08B8B; --bad-soft:#4A2323; --info:#8FB8EA; --info-soft:#1E3550; color-scheme:dark;
 }
+[hidden]{display:none!important}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.65;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
-h1,h2,h3{font-family:var(--font-display);line-height:1.25;text-wrap:balance;margin:0}
-h1{font-size:clamp(26px,3.2vw,36px);font-weight:700}
-h2{font-size:20px;font-weight:600}
-h3{font-size:16px;font-weight:600;font-family:var(--font-body)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+h1,h2,h3{margin:0;line-height:1.3;text-wrap:balance}
+h1{font-family:var(--font-display);font-size:24px;font-weight:700}
+h3{font-size:15px;font-weight:700}
 p{margin:0}
-a{color:var(--accent)}
-.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-muted);font-weight:500}
-.muted{color:var(--fg-muted)}
-.small{font-size:13px}
 .num{font-variant-numeric:tabular-nums}
+.muted{color:var(--fg-muted)}
+button{font:inherit}
+input[type=text],input[type=number],input[type=date],select{width:100%;font:inherit;font-size:14px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 9px;min-width:0}
+input[type=number]{font-variant-numeric:tabular-nums;text-align:right}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;margin:0}
 
-.top{max-width:1360px;margin:0 auto;padding-block:28px 12px;display:grid;gap:14px}
-.top-inner{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end;justify-content:space-between}
-.lede{max-width:66ch;color:var(--fg-muted);margin-top:8px}
-.top-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.banner{background:var(--accent-soft);color:var(--fg);border-radius:var(--radius);padding:10px 14px;font-size:14px}
-.banner[hidden]{display:none}
-
-.layout{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:22px;align-items:start}
-@media (min-width:1040px){
-  .layout{grid-template-columns:minmax(0,400px) minmax(0,1fr)}
-  .pane.case{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;scrollbar-width:thin}
-}
-.pane{min-width:0}
-.pane.case{display:grid;gap:12px;padding-right:2px}
-.pane.result{display:grid;gap:18px}
-
-details.block{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-details.block>summary{cursor:pointer;list-style:none;padding:12px 16px;font-weight:700;display:flex;align-items:center;gap:10px;border-bottom:1px solid transparent}
-details.block[open]>summary{border-bottom-color:var(--line)}
-details.block>summary::-webkit-details-marker{display:none}
-details.block>summary .step{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:13px;font-weight:700}
-details.block>summary::after{content:"＋";margin-left:auto;color:var(--fg-muted)}
-details.block[open]>summary::after{content:"－"}
-.block-body{padding:14px 16px 16px;display:grid;gap:12px}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 12px}
-.field{display:grid;gap:4px;min-width:0}
-.field>span{font-size:12.5px;color:var(--fg-muted);font-weight:500}
-.field.full{grid-column:1/-1}
-input[type=text],input[type=number],input[type=date],select,textarea{width:100%;font:inherit;font-size:14px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
-input[type=number]{font-variant-numeric:tabular-nums}
-textarea{resize:vertical}
-input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.check{display:flex;align-items:flex-start;gap:8px;font-size:14px;cursor:pointer}
-.check input{margin-top:4px;accent-color:var(--accent)}
-.hint{font-size:12.5px;color:var(--fg-muted)}
-.btn{font:inherit;font-size:14px;font-weight:500;border-radius:8px;padding:8px 14px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+/* top bar */
+.top{max-width:1320px;margin:0 auto;padding-block:20px 14px;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between}
+.top .sub{font-size:13px;color:var(--fg-muted)}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{font-size:14px;font-weight:500;border-radius:8px;padding:7px 14px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
 .btn.ghost{background:transparent;color:var(--accent)}
-.btn.small{padding:5px 10px;font-size:13px}
-.btn.danger{border-color:var(--bad);color:var(--bad);background:transparent}
-.btn[disabled]{opacity:.5;cursor:default}
-.addrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.addrow select{flex:1 1 180px}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--fg-muted)}
+.btn.quiet:hover{color:var(--accent)}
+.btn.sm{padding:4px 10px;font-size:13px}
+.btn[disabled]{opacity:.45;cursor:default}
+.example-note{font-size:13px;background:var(--accent-soft);border-radius:999px;padding:3px 12px}
 
-.pcard{border:1px solid var(--line);border-left:4px solid var(--ins);border-radius:8px;padding:10px 12px;display:grid;gap:10px;background:var(--surface)}
-.pcard-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.pcard-head .tag{background:var(--ins-soft);color:var(--ins);font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
-.pcard-head input[type=text]{flex:1 1 140px}
+.layout{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
+@media (min-width:1000px){.layout{grid-template-columns:minmax(0,380px) minmax(0,1fr)}.case{position:sticky;top:12px;max-height:calc(100vh - 24px);display:flex;flex-direction:column}}
 
-.citem{display:grid;grid-template-columns:auto minmax(0,1fr) 108px;gap:6px 10px;align-items:start;padding:8px 0;border-top:1px solid var(--line)}
-.citem:first-child{border-top:0}
-.citem .nm{font-weight:500}
-.citem .meta{font-size:12.5px;color:var(--fg-muted)}
-.citem input[type=checkbox]{margin-top:5px;accent-color:var(--accent)}
-.badge{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;vertical-align:middle;margin-left:4px}
-.badge.pdf{background:var(--nhi-soft);color:var(--nhi)}
-.badge.est{background:var(--warn-soft);color:var(--warn)}
-.badge.sug{background:var(--ok-soft);color:var(--ok)}
-.badge.pool{background:var(--surface-2);color:var(--fg-muted);font-weight:500}
+/* case card */
+.case{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);min-width:0;overflow:hidden}
+.seg{display:flex;gap:2px;padding:4px;margin:12px 12px 0;background:var(--surface-2);border-radius:10px}
+.seg button{flex:1;border:0;background:transparent;color:var(--fg-muted);padding:6px 8px;border-radius:7px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.seg .count{font-size:12px;color:var(--fg-muted);margin-left:3px}
+.case-body{padding:14px 16px 16px;overflow:auto;scrollbar-width:thin;min-height:0}
+.pane{display:grid;gap:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.field{display:grid;gap:3px;min-width:0}
+.field>span{font-size:12.5px;color:var(--fg-muted)}
+.full{grid-column:1/-1}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+details.more>summary{cursor:pointer;font-size:13px;color:var(--accent);list-style:none;padding:2px 0}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::before{content:"＋ "}
+details.more[open]>summary::before{content:"－ "}
+details.more[open]>summary{margin-bottom:10px}
+.sec-h{font-size:12px;font-weight:700;color:var(--fg-muted);letter-spacing:.06em;display:flex;justify-content:space-between;align-items:center;gap:8px}
 
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;display:grid;gap:14px;min-width:0}
-.card-head{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between}
-.card-head p{color:var(--fg-muted);font-size:13.5px;max-width:70ch}
+.cgroup{display:grid}
+.cgroup-h{font-size:12px;font-weight:700;color:var(--fg-muted);letter-spacing:.06em;display:flex;justify-content:space-between;padding:8px 0 4px;border-bottom:1px solid var(--line)}
+.citem{display:grid;grid-template-columns:auto minmax(0,1fr) 92px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.citem label{font-size:14px;cursor:pointer;min-width:0}
+.citem input[type=number]{padding:4px 7px;font-size:13px}
+.sug,.est{font-size:11px;font-weight:700;padding:0 5px;border-radius:4px;margin-left:5px;vertical-align:1px}
+.sug{background:var(--ok-soft);color:var(--ok)}
+.est{background:var(--surface-2);color:var(--fg-muted);font-weight:500}
+
+.pcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:10px}
+.pcard-head{display:flex;gap:8px;align-items:center}
+.pcard-head input{flex:1;font-weight:500}
+.tag{background:var(--ins-soft);color:var(--ins);font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.icon-btn{border:0;background:transparent;color:var(--fg-muted);font-size:20px;line-height:1;padding:2px 6px;border-radius:6px;cursor:pointer}
+.icon-btn:hover{color:var(--bad);background:var(--bad-soft)}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+.addrow{display:flex;gap:8px}
+.addrow select{flex:1}
+.src{font-size:12px;color:var(--fg-muted);margin-top:-4px}
+.empty{font-size:13.5px;color:var(--fg-muted)}
+
+/* result */
+.result{display:grid;gap:14px;min-width:0}
+.strip{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;display:grid;gap:12px}
+.strip .ctx{font-size:13px;color:var(--fg-muted)}
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.nums .k{font-size:13px;color:var(--fg-muted);display:block}
+.nums .v{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.25}
+.nums .v small{font-size:14px;font-weight:500;color:var(--fg-muted);margin-left:2px}
+.nums .key .v{color:var(--accent)}
+.nums>div{padding-right:12px;border-right:1px solid var(--line);min-width:0}
+.nums>div:last-child{border-right:0}
+.extra{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13.5px;color:var(--fg-muted);border-top:1px solid var(--line);padding-top:10px}
+.extra b{color:var(--fg);font-variant-numeric:tabular-nums;font-weight:700}
+@media (max-width:560px){.nums{grid-template-columns:1fr}.nums>div{border-right:0;border-bottom:1px solid var(--line);padding:6px 0}.nums>div:last-child{border-bottom:0}}
+
+.alerts{display:grid;gap:6px}
+.alert{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;font-size:14px;padding:8px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line)}
+.lv{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:999px;white-space:nowrap;margin-top:2px}
+.lv.bad{background:var(--bad-soft);color:var(--bad)} .lv.warn{background:var(--warn-soft);color:var(--warn)} .lv.ok{background:var(--ok-soft);color:var(--ok)} .lv.info{background:var(--info-soft);color:var(--info)}
+details.more-alerts>summary{cursor:pointer;font-size:13px;color:var(--fg-muted);list-style:none;padding:2px 4px}
+details.more-alerts>summary::-webkit-details-marker{display:none}
+details.more-alerts[open]>summary{margin-bottom:6px}
+details.more-alerts .alerts{gap:6px}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);min-width:0}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 10px;overflow-x:auto;scrollbar-width:none}
+.tabs button{border:0;background:transparent;color:var(--fg-muted);padding:12px 12px 10px;font-size:14.5px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.panel-body{padding:16px 20px 20px;display:grid;gap:16px;min-width:0}
+.panel-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.panel-actions p{font-size:13px;color:var(--fg-muted)}
+
 .tbl{overflow-x:auto;min-width:0}
 table{border-collapse:collapse;width:100%;font-size:14px}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:12.5px;color:var(--fg-muted);font-weight:600;white-space:nowrap;background:var(--surface-2)}
+th{font-size:12.5px;color:var(--fg-muted);font-weight:600;white-space:nowrap}
 td.r,th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.note{font-size:12.5px;color:var(--fg-muted)}
 tr.total td{font-weight:700;border-top:2px solid var(--fg);border-bottom:0}
-.chip{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;margin:1px 4px 1px 0;white-space:nowrap}
-.chip.nhi{background:var(--nhi-soft);color:var(--nhi)}
-.chip.self{background:var(--warn-soft);color:var(--warn)}
-.chip.ins{background:var(--ins-soft);color:var(--ins)}
-.chip.ok{background:var(--ok-soft);color:var(--ok)}
-.chip.bad{background:var(--bad-soft);color:var(--bad)}
-.chip.none{background:var(--surface-2);color:var(--fg-muted)}
-
-.settle{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.settle .box{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:2px}
-.settle .box .k{font-size:12.5px;color:var(--fg-muted)}
-.settle .box .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
-.settle .box.key{border-color:var(--accent);background:var(--accent-soft)}
-.settle .box .s{font-size:12px;color:var(--fg-muted)}
-
-.flags{display:grid;gap:8px}
-.flag{border-left:4px solid var(--warn);background:var(--surface);border-radius:8px;padding:9px 12px;font-size:14px;box-shadow:var(--shadow)}
-.flag.bad{border-left-color:var(--bad)} .flag.ok{border-left-color:var(--ok)} .flag.info{border-left-color:var(--nhi)}
-.flag b{font-weight:700}
+.zero{color:var(--fg-muted)}
 
 .qgroup{display:grid;gap:6px}
-.qgroup h3{display:flex;gap:8px;align-items:center}
-.qgroup ol{margin:0;padding-left:22px;display:grid;gap:6px}
-.qgroup li .why{display:block;font-size:12.5px;color:var(--fg-muted)}
+.qgroup ol,.list{margin:0;padding-left:22px;display:grid;gap:7px}
+.why{display:block;font-size:12.5px;color:var(--fg-muted)}
 
-.docs ul{margin:0;padding-left:20px;display:grid;gap:6px}
-
-.timeline{display:grid;gap:0;counter-reset:ph}
 .phase{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--line)}
-.phase:first-child{border-top:0}
-.phase .dot{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:13px;font-weight:700;counter-increment:ph}
-.phase .dot::before{content:counter(ph)}
-.phase .ph-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
-.phase .when{font-size:12.5px;color:var(--fg-muted)}
-.phase .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 18px;margin-top:6px}
-.phase .cols h4{margin:0 0 4px;font-size:12.5px;color:var(--fg-muted);font-weight:600;letter-spacing:.04em}
-.phase ul{margin:0;padding-left:18px;display:grid;gap:3px;font-size:14px}
-
-.care{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 20px}
+.phase:first-child{border-top:0;padding-top:0}
+.dot{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:13px;font-weight:700}
+.ph-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.when{font-size:12.5px;color:var(--fg-muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 20px;margin-top:6px}
+.cols h4{margin:0 0 3px;font-size:12px;color:var(--fg-muted);font-weight:700;letter-spacing:.06em}
+.cols ul,.care ul{margin:0;padding-left:18px;display:grid;gap:3px;font-size:14px}
+.care{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px 24px}
 .care h3{margin-bottom:4px}
-.care ul{margin:0;padding-left:18px;display:grid;gap:3px;font-size:14px}
 
 .ai-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.ai-out{border:1px dashed var(--line);border-radius:8px;padding:12px 14px;min-height:60px;font-size:14.5px}
-.ai-out:empty::before{content:"按「產出專屬套餐」後，Claude 會依左欄資料與規則寫出重點、理賠路徑、電話逐字稿與白話說明。";color:var(--fg-muted)}
-.ai-out h2,.ai-out h3,.ai-out h4{margin:14px 0 6px;font-family:var(--font-body)}
-.ai-out h2{font-size:17px} .ai-out h3{font-size:15.5px} .ai-out h4{font-size:14.5px}
+.ai-out{border:1px dashed var(--line);border-radius:10px;padding:12px 14px;min-height:60px;font-size:14.5px;min-width:0}
+.ai-out:empty::before{content:"用 Codex 產生後貼上並按「顯示」，或按「產出專屬套餐」由 Claude 撰寫；結果顯示在這裡。";color:var(--fg-muted)}
+.codex{display:grid;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
+.codex code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:var(--surface);padding:1px 5px;border-radius:4px;word-break:break-all}
+textarea{width:100%;font:inherit;font-size:13.5px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical;min-width:0}
+.ai-out h2,.ai-out h3,.ai-out h4{margin:14px 0 6px;font-size:15.5px}
 .ai-out ul,.ai-out ol{margin:4px 0;padding-left:22px}
 .ai-out p{margin:6px 0}
 .ai-out code{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:var(--surface-2);padding:1px 4px;border-radius:4px}
-.ai-out table{font-size:13.5px}
 .ai-note{font-size:13px;color:var(--fg-muted)}
-.ask{display:flex;gap:8px;flex-wrap:wrap}
-.ask input{flex:1 1 240px}
-.pill{font-size:12.5px;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--fg-muted);white-space:nowrap}
-.pill.on{background:var(--ok-soft);color:var(--ok)} .pill.off{background:var(--bad-soft);color:var(--bad)}
+.ask{display:flex;gap:8px}
+.ask input{flex:1}
+.pill{font-size:12px;padding:2px 9px;border-radius:999px;background:var(--surface-2);color:var(--fg-muted);white-space:nowrap}
+.pill.on{background:var(--ok-soft);color:var(--ok)} .pill.off{background:var(--surface-2);color:var(--fg-muted)}
 .fine{font-size:12.5px;color:var(--fg-muted);max-width:90ch}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:999px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
@@ -177,166 +176,194 @@ tr.total td{font-weight:700;border-top:2px solid var(--fg);border-bottom:0}
 </style>
 
 <header class="top">
-  <div class="top-inner">
-    <div>
-      <p class="eyebrow">醫學中心乳房外科 · 個管師工具 · 台灣健保＋商業保險</p>
-      <h1>乳癌手術理賠套餐</h1>
-      <p class="lede">輸入病患分期、預計的內視鏡乳房切除方式與手上的保單，立即產出理賠對照、保險公司提問清單、文件、住院流程與術後照護套餐。所有金額都是估算，以保單條款與保險公司核定為準。</p>
-    </div>
-    <div class="top-actions">
-      <span id="aiStatus" class="pill">Claude：準備中</span>
-      <button id="btnCopy" class="btn ghost" type="button">複製套餐文字</button>
-      <button id="btnReset" class="btn ghost" type="button">清除範例，建立新個案</button>
-    </div>
+  <div>
+    <h1>乳癌手術理賠套餐</h1>
+    <p class="sub">左邊填個案，右邊即時估算。金額為估算，以保單條款與保險公司核定為準。</p>
   </div>
-  <div id="exampleBanner" class="banner">目前顯示的是<strong>範例個案</strong>（48 歲、第一期 ER 陽性、內視鏡輔助乳頭保留全切除＋前哨淋巴結切片、五張保單）。直接改左欄，右欄會即時更新。</div>
+  <div class="actions">
+    <span class="example-note" data-example>目前是範例個案</span>
+    <button id="btnCopy" class="btn ghost" type="button">複製全部套餐</button>
+    <button id="btnReset" class="btn quiet" type="button">清空</button>
+    <button id="btnExample" class="btn quiet" type="button">載入範例</button>
+  </div>
 </header>
 
 <main class="layout">
-  <aside class="pane case" aria-label="個案輸入">
+  <aside class="case" aria-label="個案輸入">
+    <div class="seg" role="tablist" aria-label="輸入分頁">
+      <button type="button" role="tab" data-ctab="case" id="ct_case">個案</button>
+      <button type="button" role="tab" data-ctab="items" id="ct_items">自費<span class="count num" id="cnt_items"></span></button>
+      <button type="button" role="tab" data-ctab="pol" id="ct_pol">保單<span class="count num" id="cnt_pol"></span></button>
+    </div>
+    <div class="case-body">
 
-    <details class="block" open>
-      <summary><span class="step">1</span>病患與手術情境</summary>
-      <div class="block-body">
-        <div class="grid2">
-          <label class="field full"><span>病理／分期（SEER「localized」約為第 0–II 期、淋巴結陰性）</span>
-            <select id="f_stage">
+      <div class="pane" data-cpane="case">
+        <div class="grid">
+          <label class="field full"><span>病理分期</span>
+            <select id="f_stage" data-bind="stage">
               <option value="dcis">原位癌 DCIS（第 0 期）</option>
-              <option value="s1">第一期（T1N0）侵襲性乳癌</option>
+              <option value="s1">第一期（T1N0）侵襲性</option>
               <option value="s2">第二期、淋巴結陰性（T2N0）</option>
             </select></label>
-          <label class="field"><span>受體狀態</span>
-            <select id="f_receptor">
-              <option value="er_pos">ER/PR 陽性、HER2 陰性</option>
-              <option value="her2">HER2 陽性</option>
+          <label class="field"><span>受體</span>
+            <select id="f_receptor" data-bind="receptor">
+              <option value="er_pos">ER/PR＋、HER2－</option>
+              <option value="hr_her2">ER/PR＋、HER2＋（三陽性）</option>
+              <option value="her2">ER/PR－、HER2＋</option>
               <option value="tnbc">三陰性</option>
               <option value="unknown">尚未確定</option>
             </select></label>
-          <label class="field"><span>年齡</span><input id="f_age" type="number" min="18" max="100" inputmode="numeric"></label>
-          <label class="field"><span>確診日（切片／病理）</span><input id="f_dx" type="date"></label>
-          <label class="field"><span>預定手術日</span><input id="f_surg" type="date"></label>
-          <label class="field full"><span>手術方式</span>
-            <select id="f_optype">
-              <option value="endo_nsm">內視鏡輔助乳頭保留全切除（NSM）— 院方以自費手術排程</option>
-              <option value="endo_partial">內視鏡輔助部分切除 — 自費手術</option>
-              <option value="robot_nsm">達文西機械手臂乳頭保留全切除 — 自費</option>
-              <option value="open_total">傳統乳房全切除 — 健保</option>
-              <option value="open_partial">傳統乳房部分切除 — 健保</option>
+          <label class="field"><span>年齡</span><input id="f_age" data-bind="age" type="number" min="18" max="100" inputmode="numeric"></label>
+          <label class="field"><span>停經狀態</span>
+            <select id="f_meno" data-bind="meno">
+              <option value="pre">停經前</option>
+              <option value="post">停經後</option>
+              <option value="unknown">未確定</option>
             </select></label>
-          <label class="field"><span>腋下處置</span>
-            <select id="f_axilla">
-              <option value="slnb">前哨淋巴結切片（SLNB）</option>
-              <option value="alnd">腋下淋巴結廓清（ALND）</option>
-              <option value="none">不處理腋下</option>
+          <label class="field"><span>腫瘤大小（cm）</span><input id="f_ctsize" data-bind="ctsize" type="number" min="0" max="10" step="0.1" inputmode="decimal"></label>
+          <label class="field full"><span>手術方式</span>
+            <select id="f_optype" data-bind="optype">
+              <option value="endo_nsm">內視鏡輔助乳頭保留全切除（自費）</option>
+              <option value="endo_partial">內視鏡輔助部分切除（自費）</option>
+              <option value="robot_nsm">達文西乳頭保留全切除（自費）</option>
+              <option value="open_total">傳統乳房全切除（健保）</option>
+              <option value="open_partial">傳統乳房部分切除（健保）</option>
+            </select></label>
+          <label class="field"><span>腋下</span>
+            <select id="f_axilla" data-bind="axilla">
+              <option value="slnb">前哨淋巴結切片</option>
+              <option value="alnd">腋下廓清 ALND</option>
+              <option value="none">不處理</option>
             </select></label>
           <label class="field"><span>重建</span>
-            <select id="f_recon">
+            <select id="f_recon" data-bind="recon">
               <option value="none">不重建</option>
-              <option value="implant">立即義乳植入（整形外科 combine）</option>
-              <option value="expander">組織擴張器（二階段）</option>
-              <option value="autologous">自體組織皮瓣</option>
-              <option value="oncoplasty">乳房整形式保留手術（oncoplasty）</option>
+              <option value="implant">立即義乳植入</option>
+              <option value="expander">組織擴張器</option>
+              <option value="autologous">自體皮瓣</option>
+              <option value="oncoplasty">Oncoplasty</option>
             </select></label>
-          <label class="field"><span>自費手術費（元，依醫院報價）</span><input id="f_opfee" type="number" min="0" step="1000" inputmode="numeric"></label>
-          <label class="field" id="w_implant" hidden><span>植入物／擴張器費用（元）</span><input id="f_implantfee" type="number" min="0" step="1000" inputmode="numeric"></label>
-        </div>
-        <div class="grid2">
-          <label class="check"><input id="f_smoker" type="checkbox"><span>吸菸（含電子煙）</span></label>
-          <label class="check"><input id="f_dm" type="checkbox"><span>糖尿病</span></label>
-        </div>
-        <p class="hint">「內視鏡輔助」在醫學中心以自費手術排程，講義沒有列價格；請填醫院報價。健保仍給付住院與傳統術式對應的部分。</p>
-      </div>
-    </details>
-
-    <details class="block" open>
-      <summary><span class="step">2</span>住院與自費項目</summary>
-      <div class="block-body">
-        <div class="grid2">
-          <label class="field"><span>預計住院天數</span><input id="f_los" type="number" min="1" max="30" inputmode="numeric"></label>
+          <label class="field"><span>自費手術費（元）</span><input id="f_opfee" data-bind="opfee" type="number" min="0" step="1000" inputmode="numeric"></label>
+          <label class="field" data-when="implant"><span>植入物費用（元）</span><input id="f_implantfee" data-bind="implantfee" type="number" min="0" step="1000" inputmode="numeric"></label>
+          <label class="field"><span>住院天數</span><input id="f_los" data-bind="los" type="number" min="1" max="30" inputmode="numeric"></label>
           <label class="field"><span>病房</span>
-            <select id="f_room">
-              <option value="nhi">健保房（無差額）</option>
+            <select id="f_room" data-bind="room">
+              <option value="nhi">健保房</option>
               <option value="double">雙人房</option>
               <option value="single">單人房</option>
             </select></label>
-          <label class="field"><span>病房差額／日（元）</span><input id="f_roomdiff" type="number" min="0" step="100" inputmode="numeric"></label>
-          <label class="field"><span>預估健保部分負擔（元）</span><input id="f_copay" type="number" min="0" step="500" inputmode="numeric"></label>
+          <label class="field" data-when="room"><span>病房差額／日</span><input id="f_roomdiff" data-bind="roomdiff" type="number" min="0" step="100" inputmode="numeric"></label>
+          <label class="field full"><span>重大傷病證明</span>
+            <select id="f_nhicat" data-bind="nhicat">
+              <option value="none">一般健保身分</option>
+              <option value="has">已持有（本疾病）</option>
+              <option value="apply">符合，出院時申請（侵襲性）</option>
+              <option value="ineligible">不符合（原位癌）</option>
+            </select></label>
         </div>
-        <label class="check"><input id="f_pca" type="checkbox"><span>自控式止痛 PCA（自費）</span></label>
-        <label class="field"><span>PCA 費用（元）</span><input id="f_pcafee" type="number" min="0" step="500" inputmode="numeric"></label>
-        <div class="card-head" style="margin-top:4px">
-          <h3>自費耗材與帶回用品</h3>
-          <button id="btnSuggest" class="btn ghost small" type="button">依情境套用建議勾選</button>
+        <details class="more">
+          <summary>日期、部分負擔、共病</summary>
+          <div class="grid">
+            <label class="field"><span>確診日</span><input id="f_dx" data-bind="dx" type="date"></label>
+            <label class="field"><span>預定手術日</span><input id="f_surg" data-bind="surg" type="date"></label>
+            <label class="field"><span>健保部分負擔（元）</span><input id="f_copay" data-bind="copay" type="number" min="0" step="500" inputmode="numeric"></label>
+            <span></span>
+            <label class="check"><input id="f_smoker" data-bind="smoker" type="checkbox"><span>吸菸</span></label>
+            <label class="check"><input id="f_dm" data-bind="dm" type="checkbox"><span>糖尿病</span></label>
+          </div>
+        </details>
+      </div>
+
+      <div class="pane" data-cpane="items" hidden>
+        <div class="grid">
+          <label class="check"><input id="f_pca" data-bind="pca" type="checkbox"><span>自控式止痛 PCA</span></label>
+          <label class="field" data-when="pca"><input id="f_pcafee" data-bind="pcafee" type="number" min="0" step="500" inputmode="numeric" aria-label="PCA 費用"></label>
         </div>
-        <p class="hint"><span class="badge pdf">講義價</span>來自醫學中心乳房外科講義；<span class="badge est">估</span>為估計值，請填醫院報價。<span class="badge sug">建議</span>表示依目前情境常會開立。</p>
+        <div class="sec-h"><span>耗材與帶回用品</span><button id="btnSuggest" class="btn ghost sm" type="button">依情境勾選</button></div>
         <div id="consumables"></div>
+        <p class="empty">滑鼠停在品項上可看規格與開立時機。「估」為估計價，請改成醫院報價。</p>
       </div>
-    </details>
 
-    <details class="block">
-      <summary><span class="step">3</span>健保身分、勞保與團保</summary>
-      <div class="block-body">
-        <label class="field"><span>重大傷病證明</span>
-          <select id="f_nhicat">
-            <option value="none">一般健保身分</option>
-            <option value="has">已持有重大傷病卡（本疾病）</option>
-            <option value="apply">符合資格，出院時由醫院認定／申請（侵襲性乳癌）</option>
-            <option value="ineligible">不符合（原位癌一般不在重大傷病範圍）</option>
-          </select></label>
-        <label class="check"><input id="f_labor" type="checkbox"><span>勞保被保險人，住院期間無薪（可申請普通傷病給付）</span></label>
-        <label class="field"><span>勞保月投保薪資（元）</span><input id="f_salary" type="number" min="0" step="100" inputmode="numeric"></label>
-        <label class="check"><input id="f_group" type="checkbox"><span>有公司團保</span></label>
-        <div class="grid2">
-          <label class="field"><span>團保住院日額（元／日）</span><input id="f_groupdaily" type="number" min="0" step="100" inputmode="numeric"></label>
-          <label class="field"><span>團保實支雜費限額（元）</span><input id="f_groupmisc" type="number" min="0" step="1000" inputmode="numeric"></label>
-        </div>
-      </div>
-    </details>
-
-    <details class="block" open>
-      <summary><span class="step">4</span>商業保單</summary>
-      <div class="block-body">
+      <div class="pane" data-cpane="pol" hidden>
         <div id="policies" style="display:grid;gap:10px"></div>
         <div class="addrow">
           <select id="f_newtype" aria-label="保單類型">
-            <option value="reimb">實支實付（住院醫療費用）</option>
-            <option value="surg">手術險／手術醫療</option>
+            <option value="reimb">實支實付</option>
+            <option value="surg">手術險</option>
             <option value="daily">住院日額</option>
-            <option value="cancer">癌症險（一次金／療程）</option>
-            <option value="ciicard">重大傷病險（憑重大傷病卡）</option>
+            <option value="cancer">癌症險</option>
+            <option value="ciicard">重大傷病險</option>
             <option value="cii">重大疾病險</option>
+            <optgroup label="國泰人壽範本">
+              <option value="preset:cv4m20">新實全心意PLUS 實支 M20</option>
+              <option value="preset:cv4m30">新實全心意PLUS 實支 M30</option>
+              <option value="preset:loveguard">鍾愛守護防癌 100 萬</option>
+            </optgroup>
           </select>
-          <button id="btnAdd" class="btn small" type="button">＋ 新增保單</button>
+          <button id="btnAdd" class="btn sm" type="button">＋ 加入</button>
         </div>
-        <p class="hint">病患不清楚保單時，可用保發中心「保險存摺」查詢，或請業務提供條款與理賠申請書。</p>
+        <details class="more">
+          <summary>勞保與公司團保</summary>
+          <div class="grid">
+            <label class="check full"><input id="f_labor" data-bind="labor" type="checkbox"><span>勞保，住院期間無薪</span></label>
+            <label class="field full" data-when="labor"><span>月投保薪資（元）</span><input id="f_salary" data-bind="salary" type="number" min="0" step="100" inputmode="numeric"></label>
+            <label class="check full"><input id="f_group" data-bind="group" type="checkbox"><span>有公司團保</span></label>
+            <label class="field" data-when="group"><span>團保日額／日</span><input id="f_groupdaily" data-bind="groupdaily" type="number" min="0" step="100" inputmode="numeric"></label>
+            <label class="field" data-when="group"><span>團保雜費限額</span><input id="f_groupmisc" data-bind="groupmisc" type="number" min="0" step="1000" inputmode="numeric"></label>
+          </div>
+        </details>
+        <p class="empty">病患不清楚保單時，可用保發中心「保險存摺」查詢。</p>
       </div>
-    </details>
+    </div>
   </aside>
 
-  <section class="pane result" aria-label="產出的套餐">
-    <section class="card" id="sec_summary"></section>
-    <div class="flags" id="sec_flags"></div>
-    <section class="card" id="sec_items"></section>
-    <section class="card" id="sec_claims"></section>
-    <section class="card" id="sec_questions"></section>
-    <section class="card docs" id="sec_docs"></section>
-    <section class="card" id="sec_flow"></section>
-    <section class="card" id="sec_care"></section>
-    <section class="card" id="sec_ai">
-      <div class="card-head"><h2>專屬套餐（由 Claude 依本頁資料撰寫）</h2><p>把左欄情境、右欄試算與規則摘要一起交給 Claude，產出個管師重點、理賠路徑、保險公司逐字稿、給病患的白話說明。每次呼叫使用瀏覽者自己的 Claude 額度。</p></div>
-      <div class="ai-controls">
-        <button id="btnAI" class="btn" type="button">產出專屬套餐</button>
-        <button id="btnStop" class="btn ghost" type="button" disabled>停止</button>
-        <button id="btnCopyAI" class="btn ghost" type="button" disabled>複製 Claude 內容</button>
-        <span id="aiNote" class="ai-note"></span>
+  <section class="result" aria-label="估算結果">
+    <div class="strip" id="strip"></div>
+    <div id="alerts"></div>
+    <div class="panel">
+      <div class="tabs" role="tablist" aria-label="輸出分頁">
+        <button type="button" role="tab" data-otab="claims" id="ot_claims">理賠試算</button>
+        <button type="button" role="tab" data-otab="call" id="ot_call">問保險公司</button>
+        <button type="button" role="tab" data-otab="docs" id="ot_docs">文件</button>
+        <button type="button" role="tab" data-otab="flow" id="ot_flow">住院流程</button>
+        <button type="button" role="tab" data-otab="adj" id="ot_adj">術後治療</button>
+        <button type="button" role="tab" data-otab="care" id="ot_care">照護衛教</button>
+        <button type="button" role="tab" data-otab="ai" id="ot_ai">AI 撰寫</button>
       </div>
-      <div id="aiOut" class="ai-out"></div>
-      <div class="ask">
-        <input id="askInput" type="text" placeholder="追問，例如：如果病患只有一張舊制實支，順序怎麼送？" aria-label="追問 Claude">
-        <button id="btnAsk" class="btn ghost" type="button">追問</button>
+      <div class="panel-body" data-opane="claims" id="out_claims"></div>
+      <div class="panel-body" data-opane="call" id="out_call" hidden></div>
+      <div class="panel-body" data-opane="docs" id="out_docs" hidden></div>
+      <div class="panel-body" data-opane="flow" id="out_flow" hidden></div>
+      <div class="panel-body" data-opane="adj" id="out_adj" hidden></div>
+      <div class="panel-body" data-opane="care" id="out_care" hidden></div>
+      <div class="panel-body" data-opane="ai" hidden>
+        <div class="panel-actions"><p>把本頁資料交給 AI，寫成可直接貼進病歷或衛教單的套餐：個管師重點、理賠路徑、保險公司逐字稿、白話說明、術後治療與營養。</p><span id="aiStatus" class="pill">Claude：準備中</span></div>
+        <div class="codex">
+          <h3>用 Codex 產生（本機）</h3>
+          <ol class="list">
+            <li>按「複製給 Codex 的提示詞」。</li>
+            <li>在專案資料夾的終端機執行 <code>pbpaste | bash tools/codex/write_package.sh</code>；完成後結果會自動複製到剪貼簿。</li>
+            <li>把結果貼到下方，按「顯示」。</li>
+          </ol>
+          <div class="ai-controls"><button id="btnCopyPrompt" class="btn" type="button">複製給 Codex 的提示詞</button></div>
+          <textarea id="codexIn" rows="4" placeholder="貼上 Codex 產出的 Markdown" aria-label="Codex 產出"></textarea>
+          <div class="ai-controls"><button id="btnShowCodex" class="btn ghost" type="button">顯示</button></div>
+        </div>
+        <h3>或在 claude.ai 直接用 Claude</h3>
+        <div class="ai-controls">
+          <button id="btnAI" class="btn" type="button">產出專屬套餐</button>
+          <button id="btnStop" class="btn ghost" type="button" disabled>停止</button>
+          <button id="btnCopyAI" class="btn ghost" type="button" disabled>複製</button>
+          <span id="aiNote" class="ai-note"></span>
+        </div>
+        <div id="aiOut" class="ai-out"></div>
+        <div class="ask">
+          <input id="askInput" type="text" placeholder="追問，例如：只有一張舊制實支，順序怎麼送？" aria-label="追問 Claude">
+          <button id="btnAsk" class="btn ghost" type="button">追問</button>
+        </div>
       </div>
-    </section>
-    <footer class="fine">本頁為個管師工作輔助，金額皆為估算；理賠以各保單條款與保險公司核定為準，醫療決策以主治醫師為準。頁面不儲存病患姓名或病歷號；輸入內容只留在這部裝置的瀏覽器。</footer>
+    </div>
+    <footer class="fine">個管師工作輔助；理賠以保單條款與保險公司核定為準，醫療決策以主治醫師為準。不儲存病患姓名或病歷號，輸入只留在這部裝置的瀏覽器。</footer>
   </section>
 </main>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -344,9 +371,8 @@ tr.total td{font-weight:700;border-top:2px solid var(--fg);border-bottom:0}
 <script>
 (function(){
 'use strict';
-/* ---------- reference data ---------- */
 const STAGES={dcis:{label:'原位癌 DCIS（第 0 期）',invasive:false},s1:{label:'第一期（T1N0）',invasive:true},s2:{label:'第二期、淋巴結陰性（T2N0）',invasive:true}};
-const RECEPTORS={er_pos:'ER/PR 陽性、HER2 陰性',her2:'HER2 陽性',tnbc:'三陰性',unknown:'尚未確定'};
+const RECEPTORS={er_pos:'ER/PR 陽性、HER2 陰性',hr_her2:'ER/PR 陽性、HER2 陽性（三陽性）',her2:'ER/PR 陰性、HER2 陽性',tnbc:'三陰性',unknown:'尚未確定'};
 const OPTYPES={
   endo_nsm:{label:'內視鏡輔助乳頭保留全切除（NSM）',en:'Endoscopic-assisted nipple-sparing mastectomy',fee:80000,endo:true,total:true,selfpay:true},
   endo_partial:{label:'內視鏡輔助部分切除',en:'Endoscopic-assisted partial mastectomy',fee:60000,endo:true,total:false,selfpay:true},
@@ -375,10 +401,10 @@ const CONSUMABLES=[
   {id:'brca',name:'Germline BRCA1/2 基因檢測',spec:'符合條件可健保（如三陰性）；自費 25,000',price:25000,src:'pdf',pool:'opd',when:'三陰性、40 歲以下或家族史時',suggest:c=>c.tnbc||c.age<=40}];
 const PTYPE={reimb:'實支實付',surg:'手術險',daily:'住院日額',cancer:'癌症險',ciicard:'重大傷病險',cii:'重大疾病險'};
 const PFIELDS={
-  reimb:[['era','新制／舊制','select',[['new','新制（2024/10 後投保，正本）'],['old','舊制（可用副本）']]],['misc','雜費限額／次（元）','number'],['surg','手術費限額（元）','number'],['overflow','手術費超額可併入雜費','check'],['room','病房差額限額／日（元）','number'],['prepost','含住院前後門診','check'],['eff','保單生效日','date']],
+  reimb:[['era','新制／舊制','select',[['new','新制（2024/7/1 後投保，正本）'],['old','舊制（可用副本）']]],['misc','雜費限額／次（元）','number'],['surg','手術費限額（元）','number'],['overflow','手術費超額可併入雜費','check'],['room','病房差額限額／日（元）','number'],['prepost','含住院前後門診','check'],['eff','保單生效日','date'],['alt','擇優住院日額（元／日，0＝無）','number']],
   surg:[['sum','手術保險金額（元）','number'],['mult','乳房切除對應倍數（%）','number'],['opd','門診手術給付比例（%）','number']],
   daily:[['daily','住院日額（元／日）','number'],['bonus','手術加給（元）','number'],['rest','出院療養金（元／日）','number']],
-  cancer:[['sum','初次罹癌一次金（元）','number'],['cis','原位癌／初期給付（%）','number'],['s1','第一期乳癌給付（%）','number'],['wait','等待期（天）','number'],['eff','保單生效日','date'],['daily','癌症住院日額（元／日）','number'],['surg','癌症手術保險金（元）','number'],['recon','乳房重建保險金（元）','number']],
+  cancer:[['sum','初次罹癌一次金（元）','number'],['cis','原位癌／初期給付（%）','number'],['s1','第一期乳癌給付（%）','number'],['wait','等待期（天）','number'],['eff','保單生效日','date'],['daily','癌症住院日額（元／日）','number'],['surg','癌症手術保險金（元）','number'],['recon','乳房重建保險金（元）','number'],['yr2','第二保單年度起才給付一次金','check']],
   ciicard:[['sum','保險金額（元）','number']],
   cii:[['sum','保險金額（元）','number'],['ver','條款版本','select',[['pre2016','2016 前舊版（癌症不分級，原位癌除外）'],['v2016','2016 示範條款（輕度／重度）'],['v2016e','2016 版含初期癌症']]],['mild','輕度癌症給付（%）','number'],['early','初期癌症給付（%）','number']]};
 const PDEFAULT={
@@ -389,26 +415,31 @@ const PDEFAULT={
   ciicard:{sum:1000000},
   cii:{sum:1000000,ver:'v2016',mild:20,early:0}};
 
-const EXAMPLE={example:true,stage:'s1',receptor:'er_pos',age:48,dx:'2026-10-20',surg:'2026-11-18',optype:'endo_nsm',axilla:'slnb',recon:'none',opfee:80000,implantfee:90000,smoker:false,dm:false,
+const EXAMPLE={example:true,stage:'s1',receptor:'er_pos',age:48,meno:'pre',ctsize:1.6,dx:'2026-10-20',surg:'2026-11-18',optype:'endo_nsm',axilla:'slnb',recon:'none',opfee:80000,implantfee:90000,smoker:false,dm:false,
   los:4,room:'double',roomdiff:2000,copay:6000,pca:true,pcafee:6000,
   items:{tisseel:{on:true,price:11000},energy:{on:true,price:25000},port:{on:true,price:8000},exofin:{on:true,price:4400},hemostat:{on:false,price:11099},alexis:{on:false,price:4500},stratafix:{on:false,price:1960},bra:{on:true,price:8680},belt:{on:false,price:2100},tape:{on:true,price:468},gel:{on:true,price:1980},sleeve:{on:false,price:3500},skin:{on:false,price:2190},nutri:{on:false,price:1500},oncotype:{on:true,price:175000},brca:{on:false,price:25000}},
   nhicat:'apply',labor:true,salary:36300,group:false,groupdaily:1000,groupmisc:0,
   policies:[
-    {type:'reimb',name:'實支實付 A（2025 投保，新制）',era:'new',misc:200000,surg:100000,overflow:true,room:3000,prepost:true,eff:'2025-03-01'},
-    {type:'reimb',name:'實支實付 B（2015 投保，舊制）',era:'old',misc:120000,surg:50000,overflow:false,room:2000,prepost:true,eff:'2015-06-01'},
-    {type:'cancer',name:'一次給付型癌症險',sum:1000000,cis:15,s1:100,wait:90,eff:'2018-01-01',daily:3000,surg:50000,recon:100000},
-    {type:'cii',name:'重大疾病險（2016 版乙型）',sum:1000000,ver:'v2016',mild:20,early:0},
-    {type:'daily',name:'住院日額險',daily:2000,bonus:0,rest:0}]};
+    {type:'reimb',preset:'cv4m30',name:'國泰 新實全心意PLUS 住院醫療附約 M30',era:'new',misc:300000,surg:0,overflow:true,room:3000,prepost:false,eff:'2025-03-01',alt:3000},
+    {type:'cancer',preset:'loveguard',name:'國泰 鍾愛守護防癌定期保險 100 萬',sum:1000000,cis:20,s1:20,wait:90,eff:'2025-03-01',daily:0,surg:0,recon:0,yr2:true}]};
 const BLANK=Object.assign({},JSON.parse(JSON.stringify(EXAMPLE)),{example:false,dx:'',surg:'',policies:[],items:Object.fromEntries(CONSUMABLES.map(c=>[c.id,{on:false,price:c.price}]))});
+
+/* 保險公司範本：國泰人壽（數字取自國泰人壽官網商品說明，版本見 src） */
+const PRESETS={
+  cv4m20:{label:'國泰 新實全心意PLUS 住院醫療附約 M20',src:'國泰人壽新實全心意PLUS住院醫療健康保險附約（外溢型），114.04.24 備查',p:{type:'reimb',era:'new',misc:200000,surg:0,overflow:true,room:2000,prepost:false,eff:'',alt:2000}},
+  cv4m30:{label:'國泰 新實全心意PLUS 住院醫療附約 M30',src:'國泰人壽新實全心意PLUS住院醫療健康保險附約（外溢型），114.04.24 備查',p:{type:'reimb',era:'new',misc:300000,surg:0,overflow:true,room:3000,prepost:false,eff:'',alt:3000}},
+  loveguard:{label:'國泰 鍾愛守護防癌定期保險 100 萬',src:'國泰人壽鍾愛守護防癌定期保險，2026 年 1 月版商品說明',p:{type:'cancer',sum:1000000,cis:20,s1:20,wait:90,eff:'',daily:0,surg:0,recon:0,yr2:true}}};
 
 /* ---------- state ---------- */
 const LS_KEY='bca-breast-insurance-v1';
-let state=load();
-function load(){try{const raw=localStorage.getItem(LS_KEY);if(raw){const s=JSON.parse(raw);if(s&&s.items&&s.policies)return s;}}catch(e){}return JSON.parse(JSON.stringify(EXAMPLE));}
+let state=load(), lastR=null;
+function load(){try{const raw=localStorage.getItem(LS_KEY);if(raw){const s=JSON.parse(raw);if(s&&s.items&&s.policies&&!s.example)return s;}}catch(e){}return JSON.parse(JSON.stringify(EXAMPLE));}
 let saveT=null;function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}},300);}
+function pref(k,v){try{if(v===undefined)return localStorage.getItem('bca-ui-'+k);localStorage.setItem('bca-ui-'+k,v);}catch(e){return null;}}
 
 /* ---------- helpers ---------- */
 const $=id=>document.getElementById(id);
+const $$=(sel,root)=>Array.from((root||document).querySelectorAll(sel));
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const n=v=>{const x=Number(v);return isFinite(x)?x:0;};
 const fmt=v=>Math.round(n(v)).toLocaleString('zh-TW')+' 元';
@@ -416,51 +447,82 @@ const fmt0=v=>Math.round(n(v)).toLocaleString('zh-TW');
 function daysBetween(a,b){if(!a||!b)return null;const d=(new Date(b)-new Date(a))/86400000;return isFinite(d)?Math.round(d):null;}
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),1800);}
 async function copyText(text){try{await navigator.clipboard.writeText(text);toast('已複製');}catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已複製');}catch(e2){toast('請手動選取複製');}ta.remove();}}
+const LV_ORDER={bad:0,warn:1,ok:2,info:3};
+const LV_LABEL={bad:'注意',warn:'確認',ok:'可辦',info:'參考'};
 
-function ctxOf(s){const op=OPTYPES[s.optype]||OPTYPES.endo_nsm;return{dcis:s.stage==='dcis',invasive:s.stage!=='dcis',endo:!!op.endo,total:!!op.total,partial:!op.total||s.recon==='oncoplasty',selfpay:!!op.selfpay,alnd:s.axilla==='alnd',recon:['implant','expander','autologous'].includes(s.recon),erpos:s.receptor==='er_pos',tnbc:s.receptor==='tnbc',her2:s.receptor==='her2',age:n(s.age)||50};}
+/* ---------- field binding: any [data-bind=key] control mirrors state[key] ---------- */
+function readEl(el){if(el.type==='checkbox')return el.checked;if(el.type==='number')return el.value===''?'':n(el.value);return el.value;}
+function writeEl(el,v){if(el.type==='checkbox')el.checked=!!v;else el.value=v==null?'':v;}
+function setField(k,v){state[k]=v;$$(`[data-bind="${k}"]`).forEach(el=>writeEl(el,v));}
+function bindFields(){$$('[data-bind]').forEach(el=>{const k=el.dataset.bind;const h=()=>{state[k]=readEl(el);afterCaseChange(k);};el.addEventListener(el.tagName==='SELECT'||el.type==='checkbox'?'change':'input',h);});}
+function syncWhen(){$$('[data-when]').forEach(el=>{const w=el.dataset.when;let on=true;
+  if(w==='implant')on=state.recon==='implant'||state.recon==='expander';else if(w==='pca')on=!!state.pca;else if(w==='labor')on=!!state.labor;else if(w==='group')on=!!state.group;else if(w==='room')on=state.room!=='nhi';
+  el.hidden=!on;});}
+function touched(){if(state.example){state.example=false;syncExample();}}
+function syncExample(){$$('[data-example]').forEach(el=>el.hidden=!state.example);}
+function afterCaseChange(k){touched();
+  if(k==='optype')setField('opfee',OPTYPES[state.optype].fee);
+  if(k==='recon'){if(state.recon==='expander'&&state.implantfee===90000)setField('implantfee',50000);if(state.recon==='implant'&&state.implantfee===50000)setField('implantfee',90000);}
+  if(k==='room'){if(state.room==='nhi')setField('roomdiff',0);else if(state.room==='double'&&!(state.roomdiff>0))setField('roomdiff',2000);else if(state.room==='single'&&(!(state.roomdiff>0)||state.roomdiff===2000))setField('roomdiff',4500);}
+  if(k==='stage')setField('nhicat',state.stage==='dcis'?'ineligible':(state.nhicat==='ineligible'?'apply':state.nhicat));
+  syncWhen();updateSuggest();refresh();}
+function fillForm(){$$('[data-bind]').forEach(el=>writeEl(el,state[el.dataset.bind]));syncWhen();syncExample();fillConsumables();updateSuggest();}
+function refresh(){lastR=compute(state);UI.render(state,lastR);save();}
 
-/* ---------- form binding ---------- */
-const BIND=[['f_stage','stage'],['f_receptor','receptor'],['f_age','age'],['f_dx','dx'],['f_surg','surg'],['f_optype','optype'],['f_axilla','axilla'],['f_recon','recon'],['f_opfee','opfee'],['f_implantfee','implantfee'],['f_smoker','smoker'],['f_dm','dm'],['f_los','los'],['f_room','room'],['f_roomdiff','roomdiff'],['f_copay','copay'],['f_pca','pca'],['f_pcafee','pcafee'],['f_nhicat','nhicat'],['f_labor','labor'],['f_salary','salary'],['f_group','group'],['f_groupdaily','groupdaily'],['f_groupmisc','groupmisc']];
-function fillForm(){for(const[id,k]of BIND){const el=$(id);if(!el)continue;if(el.type==='checkbox')el.checked=!!state[k];else el.value=state[k]==null?'':state[k];}
-  $('w_implant').hidden=!(state.recon==='implant'||state.recon==='expander');$('exampleBanner').hidden=!state.example;
-  for(const c of CONSUMABLES){const it=state.items[c.id]||{on:false,price:c.price};const cb=document.querySelector(`[data-cid="${c.id}"]`);const pr=document.querySelector(`[data-cprice="${c.id}"]`);if(cb)cb.checked=!!it.on;if(pr)pr.value=it.price;}
-  updateSuggest();}
-function readForm(id,k,el){if(el.type==='checkbox')state[k]=el.checked;else if(el.type==='number')state[k]=el.value===''?'':n(el.value);else state[k]=el.value;}
-for(const[id,k]of BIND){const el=$(id);if(!el)continue;el.addEventListener('input',()=>{readForm(id,k,el);afterCaseChange(id);});el.addEventListener('change',()=>{readForm(id,k,el);afterCaseChange(id);});}
-function afterCaseChange(id){state.example=false;$('exampleBanner').hidden=true;
-  if(id==='f_optype'){state.opfee=OPTYPES[state.optype].fee;$('f_opfee').value=state.opfee;}
-  if(id==='f_recon'){$('w_implant').hidden=!(state.recon==='implant'||state.recon==='expander');if(state.recon==='expander'&&state.implantfee===90000){state.implantfee=50000;$('f_implantfee').value=50000;}if(state.recon==='implant'&&state.implantfee===50000){state.implantfee=90000;$('f_implantfee').value=90000;}}
-  if(id==='f_room'){if(state.room==='nhi'){state.roomdiff=0;}else if(state.room==='double'&&!(state.roomdiff>0)){state.roomdiff=2000;}else if(state.room==='single'&&(!(state.roomdiff>0)||state.roomdiff===2000)){state.roomdiff=4500;}$('f_roomdiff').value=state.roomdiff;}
-  if(id==='f_stage'){state.nhicat=state.stage==='dcis'?'ineligible':(state.nhicat==='ineligible'?'apply':state.nhicat);$('f_nhicat').value=state.nhicat;}
-  updateSuggest();render();save();}
+/* ---------- consumables (grouped, compact) ---------- */
+const POOL_SHORT={misc:'住院醫材',care:'帶回用品',opd:'門診檢測'};
+function renderConsumables(host){
+  host.innerHTML=['misc','care','opd'].map(pool=>`<div class="cgroup"><p class="cgroup-h">${POOL_SHORT[pool]}<span class="cgroup-sum num" data-poolsum="${pool}"></span></p>`+
+    CONSUMABLES.filter(c=>c.pool===pool).map(c=>`<div class="citem" title="${esc([c.spec,c.when].filter(Boolean).join('　·　'))}">
+      <input type="checkbox" data-cid="${c.id}" id="c_${c.id}">
+      <label for="c_${c.id}"><span class="nm">${esc(c.name)}</span><span class="sug" data-sug="${c.id}" hidden>建議</span>${c.src==='est'?'<span class="est">估</span>':''}</label>
+      <input type="number" min="0" step="100" inputmode="numeric" data-cprice="${c.id}" id="cp_${c.id}" aria-label="${esc(c.name)}價格">
+    </div>`).join('')+'</div>').join('');
+  host.addEventListener('change',e=>{const cid=e.target.dataset.cid;if(!cid)return;state.items[cid]=state.items[cid]||{price:CONSUMABLES.find(c=>c.id===cid).price};state.items[cid].on=e.target.checked;touched();refresh();});
+  host.addEventListener('input',e=>{const pid=e.target.dataset.cprice;if(!pid)return;state.items[pid]=state.items[pid]||{on:false};state.items[pid].price=n(e.target.value);touched();refresh();});}
+function fillConsumables(){for(const c of CONSUMABLES){const it=state.items[c.id]||{on:false,price:c.price};const cb=$('c_'+c.id),pr=$('cp_'+c.id);if(cb)cb.checked=!!it.on;if(pr)pr.value=it.price;}}
+function updateSuggest(){const c=ctxOf(state);for(const it of CONSUMABLES){$$(`[data-sug="${it.id}"]`).forEach(b=>b.hidden=!it.suggest(c));}}
+function applySuggest(){const c=ctxOf(state);for(const it of CONSUMABLES){state.items[it.id]=state.items[it.id]||{price:it.price};state.items[it.id].on=!!it.suggest(c);}touched();fillConsumables();refresh();toast('已依情境勾選建議項目');}
+function consumableSummary(r){const nsel=r.items.length;return{count:nsel,total:r.misc+r.care+r.opd};}
 
-/* consumables list */
-function renderConsumables(){const host=$('consumables');host.innerHTML=CONSUMABLES.map(c=>`<div class="citem">
-  <input type="checkbox" data-cid="${c.id}" id="c_${c.id}" aria-label="${esc(c.name)}">
-  <label for="c_${c.id}" style="cursor:pointer"><span class="nm">${esc(c.name)}</span><span class="badge ${c.src}">${c.src==='pdf'?'講義價':'估'}</span><span class="badge sug" data-sug="${c.id}" hidden>建議</span><span class="badge pool">${POOL_LABEL[c.pool]}</span>
-  <div class="meta">${esc(c.spec)}${c.spec&&c.when?'　·　':''}${esc(c.when)}</div></label>
-  <input type="number" min="0" step="100" inputmode="numeric" data-cprice="${c.id}" aria-label="${esc(c.name)}價格">
- </div>`).join('');
-  host.addEventListener('change',e=>{const cid=e.target.dataset.cid;if(cid){state.items[cid]=state.items[cid]||{price:CONSUMABLES.find(c=>c.id===cid).price};state.items[cid].on=e.target.checked;state.example=false;$('exampleBanner').hidden=true;render();save();}});
-  host.addEventListener('input',e=>{const pid=e.target.dataset.cprice;if(pid){state.items[pid]=state.items[pid]||{on:false};state.items[pid].price=n(e.target.value);render();save();}});}
-function updateSuggest(){const c=ctxOf(state);for(const it of CONSUMABLES){const b=document.querySelector(`[data-sug="${it.id}"]`);if(b)b.hidden=!it.suggest(c);}}
-$('btnSuggest').addEventListener('click',()=>{const c=ctxOf(state);for(const it of CONSUMABLES){state.items[it.id]=state.items[it.id]||{price:it.price};state.items[it.id].on=!!it.suggest(c);}fillForm();render();save();toast('已依情境套用建議');});
+/* ---------- policies: main fields shown, the rest folded ---------- */
+const PMAIN={reimb:['era','misc','surg','room','alt'],surg:['sum','mult'],daily:['daily'],cancer:['sum','s1','cis','eff','yr2'],ciicard:['sum'],cii:['sum','ver','mild']};
+function fieldHtml(p,i,f){const[k,label,type,opts]=f;const v=p[k]==null?'':p[k];const id=`p${i}_${k}`;
+  if(type==='select')return `<label class="field"><span>${label}</span><select id="${id}" data-i="${i}" data-k="${k}">${opts.map(o=>`<option value="${o[0]}"${o[0]===v?' selected':''}>${o[1]}</option>`).join('')}</select></label>`;
+  if(type==='check')return `<label class="check"><input id="${id}" type="checkbox" data-i="${i}" data-k="${k}"${v?' checked':''}><span>${label}</span></label>`;
+  if(type==='date')return `<label class="field"><span>${label}</span><input id="${id}" type="date" data-i="${i}" data-k="${k}" value="${esc(v)}"></label>`;
+  return `<label class="field"><span>${label}</span><input id="${id}" type="number" min="0" inputmode="numeric" data-i="${i}" data-k="${k}" value="${esc(v)}"></label>`;}
+function renderPolicies(host){
+  if(!state.policies.length){host.innerHTML='<p class="empty">還沒有保單。用下方選單加入；沒有保單也能看健保、勞保與流程。</p>';return;}
+  host.innerHTML=state.policies.map((p,i)=>{const main=PFIELDS[p.type].filter(f=>PMAIN[p.type].includes(f[0]));const rest=PFIELDS[p.type].filter(f=>!PMAIN[p.type].includes(f[0]));
+    return `<div class="pcard"><div class="pcard-head"><span class="tag">${PTYPE[p.type]}</span><input type="text" id="p${i}_name" data-i="${i}" data-k="name" value="${esc(p.name||'')}" placeholder="保單名稱" aria-label="保單名稱"><button class="icon-btn" type="button" data-del="${i}" aria-label="移除這張保單" title="移除">×</button></div>
+      ${p.preset&&PRESETS[p.preset]?`<p class="src">範本依據：${esc(PRESETS[p.preset].src)}</p>`:''}<div class="pgrid">${main.map(f=>fieldHtml(p,i,f)).join('')}</div>
+      ${rest.length?`<details class="more"><summary>其他條款（${rest.length}）</summary><div class="pgrid">${rest.map(f=>fieldHtml(p,i,f)).join('')}</div></details>`:''}</div>`;}).join('');}
+function bindPolicies(host){
+  const upd=e=>{const el=e.target;if(el.dataset.i==null)return;const p=state.policies[+el.dataset.i];if(!p)return;p[el.dataset.k]=readEl(el);touched();refresh();};
+  host.addEventListener('input',upd);host.addEventListener('change',upd);
+  host.addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;state.policies.splice(+b.dataset.del,1);touched();renderPolicies(host);refresh();});}
+function addPolicy(t,host){if(t.startsWith('preset:')){const pr=PRESETS[t.slice(7)];state.policies.push(Object.assign({name:pr.label,preset:t.slice(7)},JSON.parse(JSON.stringify(pr.p))));touched();renderPolicies(host);refresh();toast('已加入範本，請核對保單計畫與生效日');return;}
+  state.policies.push(Object.assign({type:t,name:PTYPE[t]+' '+(state.policies.filter(p=>p.type===t).length+1)},JSON.parse(JSON.stringify(PDEFAULT[t]))));touched();renderPolicies(host);refresh();}
+function resetCase(host){state=JSON.parse(JSON.stringify(BLANK));fillForm();renderPolicies(host);refresh();toast('已清空，請輸入新個案');}
+function loadExample(host){state=JSON.parse(JSON.stringify(EXAMPLE));fillForm();renderPolicies(host);refresh();toast('已載入範例個案');}
 
-/* policies */
-function renderPolicies(){const host=$('policies');if(!state.policies.length){host.innerHTML='<p class="hint">尚未加入保單。用下方選單新增；沒有保單也能看健保、勞保與流程套餐。</p>';return;}
-  host.innerHTML=state.policies.map((p,i)=>{const fields=PFIELDS[p.type].map(f=>{const[k,label,type,opts]=f;const v=p[k]==null?'':p[k];
-    if(type==='select')return `<label class="field"><span>${label}</span><select data-i="${i}" data-k="${k}">${opts.map(o=>`<option value="${o[0]}"${o[0]===v?' selected':''}>${o[1]}</option>`).join('')}</select></label>`;
-    if(type==='check')return `<label class="check" style="align-self:end"><input type="checkbox" data-i="${i}" data-k="${k}"${v?' checked':''}><span>${label}</span></label>`;
-    if(type==='date')return `<label class="field"><span>${label}</span><input type="date" data-i="${i}" data-k="${k}" value="${esc(v)}"></label>`;
-    return `<label class="field"><span>${label}</span><input type="number" min="0" inputmode="numeric" data-i="${i}" data-k="${k}" value="${esc(v)}"></label>`;}).join('');
-    return `<div class="pcard"><div class="pcard-head"><span class="tag">${PTYPE[p.type]}</span><input type="text" data-i="${i}" data-k="name" value="${esc(p.name||'')}" placeholder="保單名稱／公司" aria-label="保單名稱"><button class="btn danger small" type="button" data-del="${i}">移除</button></div><div class="grid2">${fields}</div></div>`;}).join('');}
-$('policies').addEventListener('input',e=>{const el=e.target;if(el.dataset.i==null)return;const p=state.policies[+el.dataset.i];if(!p)return;p[el.dataset.k]=el.type==='checkbox'?el.checked:(el.type==='number'?(el.value===''?'':n(el.value)):el.value);state.example=false;$('exampleBanner').hidden=true;render();save();});
-$('policies').addEventListener('change',e=>{const el=e.target;if(el.dataset.i==null)return;const p=state.policies[+el.dataset.i];if(!p)return;p[el.dataset.k]=el.type==='checkbox'?el.checked:(el.type==='number'?(el.value===''?'':n(el.value)):el.value);render();save();});
-$('policies').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;state.policies.splice(+b.dataset.del,1);state.example=false;$('exampleBanner').hidden=true;renderPolicies();render();save();});
-$('btnAdd').addEventListener('click',()=>{const t=$('f_newtype').value;state.policies.push(Object.assign({type:t,name:PTYPE[t]+' '+(state.policies.filter(p=>p.type===t).length+1)},JSON.parse(JSON.stringify(PDEFAULT[t]))));state.example=false;$('exampleBanner').hidden=true;renderPolicies();render();save();});
-$('btnReset').addEventListener('click',()=>{state=JSON.parse(JSON.stringify(BLANK));fillForm();renderPolicies();render();save();toast('已清除，請輸入新個案');});
+function caseLine(s,r){return `${STAGES[s.stage].label} · ${RECEPTORS[s.receptor]} · ${r.op.label}＋${AXILLA[s.axilla]}${r.c.recon||s.recon==='oncoplasty'?'＋'+RECON[s.recon]:''} · 住院 ${r.days} 天`;}
+function sortedFlags(r){return r.flags.slice().sort((a,b)=>LV_ORDER[a.lv]-LV_ORDER[b.lv]);}
 
-/* ---------- computation ---------- */
+function ctxOf(s){const op=OPTYPES[s.optype]||OPTYPES.endo_nsm;return{dcis:s.stage==='dcis',invasive:s.stage!=='dcis',endo:!!op.endo,total:!!op.total,partial:!op.total||s.recon==='oncoplasty',selfpay:!!op.selfpay,alnd:s.axilla==='alnd',recon:['implant','expander','autologous'].includes(s.recon),erpos:s.receptor==='er_pos',hrpos:['er_pos','hr_her2'].includes(s.receptor),tnbc:s.receptor==='tnbc',her2:['her2','hr_her2'].includes(s.receptor),age:n(s.age)||50,size:n(s.ctsize),pre:s.meno==='pre',post:s.meno==='post'};}
+// 術前全身治療的可能性（決策點，不是建議）：HER2 陽性／三陰性且腫瘤約 2 cm 以上常先做術前治療；1–2 cm 可能討論
+function neoOf(s,c){if(!c.invasive||!(c.her2||c.tnbc))return '';if(c.size>=2||(s.stage==='s2'&&!c.size))return 'likely';if(c.size>1)return 'consider';return '';}
+// HER2 陽性早期乳癌、淋巴結陰性：健保藥品給付規定第 9 節（115/9/22 版）9.18 trastuzumab、9.87 T-DM1、9.70 pertuzumab
+const SRC_NHI9='健保第 9 節條文（115/9/22 版）';
+const BIOSIM='生物相似藥（Eirgasun 420 mg、Herzuma、Ogivri）';
+function trastNHI(s,c){const thr=c.hrpos?1:0.5,er=c.hrpos?'ER 陽性':'ER 陰性';const big=c.size>2||(s.stage==='s2'&&!c.size);
+  const neo=c.hrpos?`術前路徑（影像腫瘤 >2 cm）：限${BIOSIM}，術前後合計 18 次`:`術前路徑（影像腫瘤 >2 cm）：術後達 pCR 合計 9 次（${BIOSIM}可到 18 次）；未達 pCR 接 T-DM1，合計 18 次、T-DM1 最多 14 次`;
+  const up=`先手術路徑：限${BIOSIM}，須先完成至少 4 次化療，合計 18 次；${er}需腫瘤 >${thr} cm`;
+  if(big)return{ok:'yes',text:`本例可走${neo}；或${up}（本例符合）`};
+  if(!c.size)return{ok:'unknown',text:`請填腫瘤大小。${up}；影像腫瘤 >2 cm 才能走術前路徑`};
+  if(c.size>thr)return{ok:'yes',text:`本例 ${c.size} cm 符合${up}；腫瘤未超過 2 cm，不符術前路徑`};
+  return{ok:'no',text:`本例 ${c.size} cm 未超過 ${er} 門檻 ${thr} cm，trastuzumab 不符健保（${up}）`};}
 function compute(s){
   const c=ctxOf(s);const op=OPTYPES[s.optype]||OPTYPES.endo_nsm;const days=Math.max(1,Math.round(n(s.los)||1));
   const opFee=n(s.opfee);const implant=(s.recon==='implant'||s.recon==='expander')?n(s.implantfee):0;const pca=s.pca?n(s.pcafee):0;
@@ -474,21 +536,24 @@ function compute(s){
   const reimbs=s.policies.filter(p=>p.type==='reimb');const newer=reimbs.filter(p=>p.era!=='old'),older=reimbs.filter(p=>p.era==='old');
   function applyReimb(p,avail,consume){const roomCap=n(p.room)*days;const r=Math.min(avail.room,roomCap);const sCap=n(p.surg);const sgot=Math.min(avail.surg,sCap);const mCap=n(p.misc);const mgot=Math.min(avail.misc,mCap);let over=0;if(p.overflow){over=Math.min(avail.surg-sgot,Math.max(0,mCap-mgot));}
     if(consume){avail.room-=r;avail.surg-=(sgot+over);avail.misc-=mgot;}return{r,sgot,mgot,over,total:r+sgot+mgot+over,sCap,mCap};}
-  for(const p of newer){const g=applyReimb(p,rem,true);reimbTotal+=g.total;
-    lines.push({policy:p.name,kind:'實支實付（新制，正本）',rows:[['病房差額',g.r,`限額 ${fmt0(n(p.room))}／日 × ${days} 天`],['手術費',g.sgot,`自費手術費 ${fmt0(opFee)}，限額 ${fmt0(g.sCap)}`],['雜費',g.mgot+g.over,`限額 ${fmt0(g.mCap)}${g.over?'，含手術費超額併入 '+fmt0(g.over):''}`]]});
+  function reimbRows(p,g){if(!n(p.surg))return[['每日住院經常費用（含病房差額）',g.r,`限額 ${fmt0(n(p.room))}／日 × ${days} 天`],['每次住院醫療費用',g.mgot+g.over,`限額 ${fmt0(g.mCap)}；未設手術費限額，自費手術費 ${fmt0(g.over)} 併入`]];
+    return[['病房差額',g.r,`限額 ${fmt0(n(p.room))}／日 × ${days} 天`],['手術費',g.sgot,`自費手術費 ${fmt0(opFee)}，限額 ${fmt0(g.sCap)}`],['雜費',g.mgot+g.over,`限額 ${fmt0(g.mCap)}${g.over?'，含手術費超額併入 '+fmt0(g.over):''}`]];}
+  for(const p of newer){const snap=Object.assign({},rem);let g=applyReimb(p,rem,true);const altPay=n(p.alt)*days;if(altPay>g.total){Object.assign(rem,snap);fixedTotal+=altPay;lines.push({policy:p.name,kind:'實支實付（新制）→ 改採住院日額擇優',rows:[['住院日額',altPay,`${fmt0(n(p.alt))}／日 × ${days} 天，高於實支 ${fmt0(g.total)}`]]});continue;}reimbTotal+=g.total;
+    lines.push({policy:p.name,kind:'實支實付（新制，正本）',rows:reimbRows(p,g)});
     if(opFee>g.sCap&&!p.overflow)flags.push({lv:'bad',t:`<b>${esc(p.name)}</b>：自費手術費 ${fmt(opFee)} 超過手術費限額 ${fmt(g.sCap)}，差額 ${fmt(opFee-g.sCap)} 可能無法給付。請問保險公司「手術費超過限額可否併入雜費」，或院方收據能否把內視鏡耗材與手術費分列。`});}
-  for(const p of older){const g=applyReimb(p,Object.assign({},pool),false);reimbTotal+=g.total;
-    lines.push({policy:p.name,kind:'實支實付（舊制，副本）',rows:[['病房差額',g.r,`限額 ${fmt0(n(p.room))}／日 × ${days} 天`],['手術費',g.sgot,`限額 ${fmt0(g.sCap)}`],['雜費',g.mgot+g.over,`限額 ${fmt0(g.mCap)}${g.over?'，含手術費超額併入 '+fmt0(g.over):''}`]]});
+  for(const p of older){const g=applyReimb(p,Object.assign({},pool),false);const altPay=n(p.alt)*days;if(altPay>g.total){fixedTotal+=altPay;lines.push({policy:p.name,kind:'實支實付（舊制）→ 改採住院日額擇優',rows:[['住院日額',altPay,`${fmt0(n(p.alt))}／日 × ${days} 天`]]});continue;}reimbTotal+=g.total;
+    lines.push({policy:p.name,kind:'實支實付（舊制，副本）',rows:reimbRows(p,g)});
     if(opFee>g.sCap&&!p.overflow)flags.push({lv:'warn',t:`<b>${esc(p.name)}</b>：自費手術費超過手術費限額 ${fmt(g.sCap)}，請確認超額能否併入雜費。`});}
   if(s.group){const gd=n(s.groupdaily)*days;const gm=Math.min(pool.misc,n(s.groupmisc));fixedTotal+=gd;reimbTotal+=gm;lines.push({policy:'公司團保',kind:'團保',rows:[['住院日額',gd,`${fmt0(n(s.groupdaily))}／日 × ${days} 天`],['實支雜費',gm,`限額 ${fmt0(n(s.groupmisc))}；多數團保接受副本`]]});}
   for(const p of s.policies){
     if(p.type==='surg'){const pay=Math.round(n(p.sum)*n(p.mult)/100);fixedTotal+=pay;lines.push({policy:p.name,kind:'手術險',rows:[['手術保險金',pay,`保額 ${fmt0(n(p.sum))} × ${n(p.mult)}%（以「乳房${op.total?'全切除':'部分切除'}」比照，需確認）`]]});
       if(c.endo)flags.push({lv:'info',t:`<b>${esc(p.name)}</b>：手術表通常沒有「內視鏡輔助」項目，請確認比照哪一項、倍數多少，以及院方以自費手術開立是否影響給付。`});}
     if(p.type==='daily'){const pay=n(p.daily)*days+n(p.bonus)+n(p.rest)*days;fixedTotal+=pay;lines.push({policy:p.name,kind:'住院日額',rows:[['住院日額',n(p.daily)*days,`${fmt0(n(p.daily))}／日 × ${days} 天`],['手術加給／療養金',n(p.bonus)+n(p.rest)*days,'依條款']]});}
-    if(p.type==='cancer'){const ratio=c.dcis?n(p.cis):(s.stage==='s1'?n(p.s1):100);let lump=Math.round(n(p.sum)*ratio/100);const dd=daysBetween(p.eff,s.dx);let basis=`保額 ${fmt0(n(p.sum))} × ${ratio}%（${c.dcis?'原位癌／初期':(s.stage==='s1'?'第一期':'第二期')}認定）`;
+    if(p.type==='cancer'){const ratio=c.dcis?n(p.cis):(s.stage==='s1'?n(p.s1):100);let lump=Math.round(n(p.sum)*ratio/100);const dd=daysBetween(p.eff,s.dx);let basis=`保額 ${fmt0(n(p.sum))} × ${ratio}%（${c.dcis?'原位癌／初期':(s.stage==='s1'?'第一期／輕度':'第二期／重度')}認定）`;
       if(dd!=null&&dd<n(p.wait)){lump=0;basis+=`；確診日距生效僅 ${dd} 天，未過 ${n(p.wait)} 天等待期`;flags.push({lv:'bad',t:`<b>${esc(p.name)}</b>：確診日距保單生效日 ${dd} 天，在 ${n(p.wait)} 天等待期內，一次金可能不給付。請確認條款以切片日或病理報告日認定。`});}
+      if(lump&&p.yr2&&dd!=null&&dd<365){lump=0;basis+=`；確診日在第一保單年度內（距生效 ${dd} 天），一次金自第二保單年度起才給付`;flags.push({lv:'bad',t:`<b>${esc(p.name)}</b>：確診日在第一保單年度內，此保單一次金自第二保單年度起才給付，預估 0 元；請確認首年度是否改為退還保費。`});}
       lumpTotal+=lump;const cd=n(p.daily)*days;const cs=n(p.surg);const cr=c.recon?n(p.recon):0;fixedTotal+=cd+cs+cr;
-      lines.push({policy:p.name,kind:'癌症險',rows:[['初次罹癌一次金',lump,basis],['癌症住院日額',cd,`${fmt0(n(p.daily))}／日 × ${days} 天`],['癌症手術保險金',cs,'依條款（手術需為癌症治療）'],['乳房重建保險金',cr,c.recon?'有重建，依條款':'本次未重建']]});
+      const crow=[['初次罹癌一次金',lump,basis]];if(n(p.daily))crow.push(['癌症住院日額',cd,`${fmt0(n(p.daily))}／日 × ${days} 天`]);if(n(p.surg))crow.push(['癌症手術保險金',cs,'依條款（手術需為癌症治療）']);if(n(p.recon))crow.push(['乳房重建保險金',cr,c.recon?'有重建，依條款':'本次未重建']);lines.push({policy:p.name,kind:'癌症險',rows:crow});
       if(c.dcis)flags.push({lv:'warn',t:`<b>${esc(p.name)}</b>：原位癌多以「初期／低侵襲性癌症」給付 ${n(p.cis)}%（或定額），且可能影響日後重度給付，請確認。`});
       if(s.stage==='s1')flags.push({lv:'info',t:`<b>${esc(p.name)}</b>：2016 年重大疾病示範條款把「第一期乳癌」列為輕度癌症；若此癌症險沿用分級，第一期可能只給付輕度比例。目前以 ${n(p.s1)}% 試算，請確認。`});
       if(c.recon&&!n(p.recon))flags.push({lv:'info',t:`<b>${esc(p.name)}</b>：本次有重建，請確認是否有「乳房重建保險金」。`});}
@@ -505,7 +570,7 @@ function compute(s){
   let labor=0;if(s.labor){if(days>=4){labor=Math.round(n(s.salary)/30*0.5*(days-3));lines.push({policy:'勞保普通傷病給付',kind:'勞保',rows:[['傷病給付',labor,`投保薪資 ${fmt0(n(s.salary))}÷30×50%×(${days}−3) 天；出院後休養不給付`]]});}
     else flags.push({lv:'info',t:`勞保普通傷病給付自住院第 4 天起算，目前住院 ${days} 天不會有給付。`});}
   // 其他旗標
-  if(newer.length>1)flags.push({lv:'warn',t:`有 ${newer.length} 張新制實支實付：正本收據只有一份，依損害填補原則共同分攤，建議先送雜費限額高的一家，並向第一家索取「正本收據留存證明」。`});
+  if(newer.length>1)flags.push({lv:'warn',t:`有 ${newer.length} 張新制實支實付：正本收據只有一份，依損害填補原則共同分攤，建議先送雜費限額高的一家，第一家須開立差額證明，再向下一家申請差額。`});
   if(newer.length&&older.length)flags.push({lv:'info',t:'同時有新制與舊制實支：常見做法先送新制（正本）、再送舊制（副本，醫院蓋「與正本相符」章）。'});
   if(opd>0)flags.push({lv:'warn',t:`門診自費檢測合計 ${fmt(opd)}（例如 Oncotype DX）多數不在住院實支範圍；若於住院期間開立並列於住院收據，可嘗試申請但不保證，請先問清楚。`});
   if(care>0)flags.push({lv:'info',t:`術後衣、矽敷貼、除疤凝膠等帶回材料合計 ${fmt(care)}：列於住院收據可用雜費申請，但保險公司可能認定非醫療必要而剔除。`});
@@ -513,31 +578,42 @@ function compute(s){
   if(s.nhicat==='ineligible')flags.push({lv:'warn',t:'原位癌一般不在重大傷病範圍：住院部分負擔照付（已計入），重大傷病險通常不給付，癌症險多以初期比例給付。'});
   if(c.recon)flags.push({lv:'info',t:`重建：植入物／擴張器 ${fmt(implant)} 為自費，實支雜費可申請但受限額；擴張器二階段者 3–6 個月後會再住院一次，屆時需再跑一次理賠流程。`});
   if(c.partial)flags.push({lv:'info',t:'部分切除／oncoplasty 幾乎都需要術後放射治療（健保）；癌症險的放療門診給付與皮膚照護用品（舒放療等自費）可先問。'});
-  if(c.erpos&&c.invasive)flags.push({lv:'info',t:'ER 陽性：術後荷爾蒙治療 5–10 年（健保）；淋巴結陰性者可能以 Oncotype DX（自費 175,000 元）決定是否化療。'});
-  if(c.her2)flags.push({lv:'info',t:'HER2 陽性：術後標靶治療健保有條件給付（腫瘤大小與淋巴結狀態），自費部分屬門診，請與癌症險的標靶／化療給付一起確認。'});
+  if(c.hrpos&&c.invasive)flags.push({lv:'info',t:'荷爾蒙受體陽性：術後荷爾蒙治療 5–10 年（口服藥健保）'+(c.erpos?'；淋巴結陰性者可能以 Oncotype DX（自費 175,000 元）決定是否化療。':'。')});
+  if(c.her2&&c.invasive){const tn=trastNHI(s,c);flags.push({lv:tn.ok==='no'?'warn':'info',t:`<b>HER2 陽性 trastuzumab 健保</b>：${tn.text}。pertuzumab（含 Phesgo）早期乳癌限腋下淋巴結轉移，淋巴結陰性不給付。（${SRC_NHI9}）`});
+    if(c.hrpos&&(c.size>2||(s.stage==='s2'&&!c.size)))flags.push({lv:'warn',t:'<b>三陽性、淋巴結陰性</b>：術前治療後若仍有殘留病灶，T-DM1 健保限淋巴結陽性或「ER 陰性且腫瘤 >2 cm」，本例不符，需自費。'});}
+  if(c.tnbc&&c.invasive&&!(c.size>2||(s.stage==='s2'&&!c.size))&&c.size>1)flags.push({lv:'warn',t:'<b>三陰性 pembrolizumab</b>：健保限第 II–IIIb 期（cT1c 需淋巴結陽性，或 cT2 以上）；本例淋巴結陰性、腫瘤 ≤2 cm，若主治醫師建議免疫治療需自費。'});
   if(c.tnbc)flags.push({lv:'info',t:'三陰性：germline BRCA 檢測可能符合健保 NGS 給付條件；術後多需化療。'});
+  const neo=neoOf(s,c);
+  if(neo==='likely')flags.push({lv:'bad',t:`<b>術前治療</b>：${c.her2?'HER2 陽性':'三陰性'}、腫瘤約 2 cm 以上，常會先做術前全身治療（化療＋${c.her2?'標靶':'免疫'}），手術可能延後數個月。本頁「先開刀」的流程、自費與住院天數，請先和主治醫師確認治療順序。`});
+  if(neo==='consider')flags.push({lv:'warn',t:`<b>術前治療</b>：${c.her2?'HER2 陽性':'三陰性'}、腫瘤 1–2 cm，可能討論先做術前全身治療，請和主治醫師確認治療順序。`});
+  if(c.dcis&&c.partial)flags.push({lv:'info',t:'原位癌乳房保留後多需放療：沒有重大傷病證明，放療期間每次門診的部分負擔要自付。'});
+  if(c.hrpos&&c.invasive&&!c.post)flags.push({lv:'warn',t:c.her2?'<b>停經針（GnRH 注射）</b>：健保只給付 HER2 陰性（或 IHC 1+）者，三陽性若主治醫師建議卵巢功能抑制，GnRH 需全程自費，請先告知病患並詢價。':'停經前荷爾蒙受體陽性：停經針（GnRH analogue，如 leuprorelin、goserelin、triptorelin）健保<b>需事前審查</b>。早期乳癌限「術後與 tamoxifen 併用、取代化療」，申請時須說明無法接受化療的原因；另需 ER/PR 2+ 或 3+、HER2 FISH 陰性或 IHC 1+、淋巴結轉移 ≤ 3 顆。健保給付停經針 <b>3 年</b>、tamoxifen 5 年（健保第 5 節 5.5.1）。已做化療、改併用芳香環酶抑制劑，或主治醫師建議打滿 5 年者，不符條件的部分需自費，請先告知病患並詢價。'});
   if(s.smoker)flags.push({lv:'bad',t:'吸菸者：乳頭保留手術與重建的皮瓣／乳頭缺血風險明顯上升，術前至少戒菸 4 週，請在衛教時強調。'});
   const netHospital=hospitalSelf-reimbTotal-fixedTotal;
-  return{c,op,days,opFee,implant,pca,roomDiff,copay,items,misc,care,opd,hospitalSelf,lines,flags,reimbTotal,fixedTotal,lumpTotal,labor,netHospital,newer,older};
+  return{c,op,days,opFee,implant,pca,roomDiff,copay,items,misc,care,opd,hospitalSelf,lines,flags,reimbTotal,fixedTotal,lumpTotal,labor,netHospital,newer,older,neo};
 }
 
-/* ---------- questions / docs / flow / care ---------- */
 function buildQuestions(s,r){const q=[];const op=r.op;const opName=`${op.label}（${op.en}${op.selfpay?'，院方以自費手術開立':''}）`;
   const consum=r.items.filter(i=>i.pool!=='opd').map(i=>i.name).join('、');
   for(const p of s.policies){const g=[];
-    if(p.type==='reimb'){g.push([`本次手術為「${opName}」，自費手術費約 ${fmt(r.opFee)}。這筆是從「手術費」還是「住院醫療費用（雜費）」給付？若手術費超過限額 ${fmt(n(p.surg))}，差額可否併入雜費？`,'決定自費手術費能拿回多少']);
+    if(p.type==='reimb'){g.push([n(p.surg)?`本次手術為「${opName}」，自費手術費約 ${fmt(r.opFee)}。這筆是從「手術費」還是「住院醫療費用（雜費）」給付？若手術費超過限額 ${fmt(n(p.surg))}，差額可否併入雜費？`:`本次手術為「${opName}」，自費手術費約 ${fmt(r.opFee)}。此保單未設住院手術費獨立限額，這筆是否全數併入「每次住院醫療費用」限額 ${fmt(n(p.misc))} 給付？`,'決定自費手術費能拿回多少']);
+      if(n(p.alt))g.push([`同一次住院是按實支或住院日額 ${fmt(n(p.alt))}／日「擇優」給付嗎？由貴公司自動比較，還是要勾選？`,'']);
       g.push([`以下自費醫材是否在雜費範圍：${consum||'（尚未勾選）'}${r.implant?'、義乳植入物／擴張器':''}${r.pca?'、自控式止痛 PCA':''}？哪些可能被認定非醫療必要？`,'避免事後剔除']);
       if(r.roomDiff)g.push([`病房差額每日限額 ${fmt(n(p.room))}，預計住 ${r.days} 天${s.room==='single'?'單人房':'雙人房'}差額 ${fmt(r.roomDiff)}，是否全額？`,'']);
-      g.push([`這張是新制（正本）還是舊制（可副本）？病患同時有 ${r.newer.length+r.older.length} 張實支，應先送哪一家？需要「正本收據留存證明」嗎？`,'多張實支的送件順序']);
+      g.push([`這張是新制（正本）還是舊制（可副本）？病患同時有 ${r.newer.length+r.older.length} 張實支，應先送哪一家？第一家理賠後的差額證明怎麼開？`,'多張實支的送件順序']);
       g.push(['住院前後門診（術前檢查、術後回診拆引流管）是否理賠？前後各幾天？','']);
+      g.push(['之後若有化療或其他療程住院，每次住院是否各自計算雜費限額？住院期間醫囑營養品、出院自費帶藥（益生菌、魚油、鈣 D3）是否給付？','術後治療常有多次住院']);
+      g.push(['門診化療、標靶注射、GnRH 注射是否在給付範圍（有些新式實支含門診癌症治療）？','']);
+      if(r.items.some(i=>i.id==='oncotype'))g.push(['Oncotype DX 基因檢測（自費 175,000 元）若於住院期間開立並列於住院收據，是否可申請？門診開立呢？','']);
       if(r.items.some(i=>i.id==='oncotype'))g.push(['Oncotype DX 基因檢測（自費 175,000 元）若於住院期間開立並列於住院收據，是否可申請？門診開立呢？','']);
       g.push(['可否提供事前照會／預先審核，先把手術計畫與自費項目送審？理賠需要哪些文件（診斷書欄位、手術紀錄、費用明細）？','']);}
     if(p.type==='surg'){g.push([`「${opName}」在貴公司手術項目表對應哪一項（乳房全切除／乳房根除術／部分切除）？倍數或比例多少？院方以自費手術開立是否影響？`,'']);g.push([`合併${AXILLA[s.axilla]}${r.c.recon?'與'+RECON[s.recon]:''}，是否可併計或取高者給付？`,'']);}
     if(p.type==='daily'){g.push([`住院日額 ${fmt(n(p.daily))}，預計 ${r.days} 天；有無手術加給、出院療養金？住院天數認定方式？`,'']);}
-    if(p.type==='cancer'){g.push([`病理為「${STAGES[s.stage].label}」，貴公司以「原位癌／初期」「輕度」「重度」哪一類認定？給付比例多少？領取後主約是否終止或扣除？`,'DCIS 與第一期是最常見的爭議點']);
+    if(p.type==='cancer'){if(p.yr2)g.push([`保單生效日 ${p.eff||'（未填）'}，確診日 ${s.dx||'（未填）'}：是否已進入第二保單年度？第一保單年度確診的處理方式（不給付或退還保費）？`,'這張一次金自第二保單年度起才給付']);g.push([`病理為「${STAGES[s.stage].label}」，貴公司以「原位癌／初期」「輕度」「重度」哪一類認定？給付比例多少？領取後主約是否終止或扣除？`,'DCIS 與第一期是最常見的爭議點']);
       g.push([`確診日 ${s.dx||'（未填）'}、保單生效日 ${p.eff||'（未填）'}，等待期 ${n(p.wait)} 天是否已過？以切片日還是病理報告日認定？`,'']);
       g.push(['癌症住院日額、癌症手術保險金的條件？'+(r.c.recon?'本次立即重建（'+RECON[s.recon]+'）是否符合乳房重建保險金？':'日後若重建，有無乳房重建保險金？'),'']);
-      g.push(['後續放射治療、化療、荷爾蒙／標靶治療的門診給付方式與需要的證明？','']);}
+      g.push(['後續放射治療、化療、荷爾蒙／標靶治療的門診給付方式與需要的證明？','']);
+      g.push(['口服荷爾蒙藥與 GnRH 注射是否算「癌症治療」給付？自費標靶或免疫藥物（如 pertuzumab）是否給付、上限多少？','長期自費的主要來源']);}
     if(p.type==='ciicard'){g.push([`本保單是否以取得健保重大傷病證明為給付要件？${r.c.invasive?'病患為侵襲性乳癌，預計出院後由醫院申請重大傷病證明，核發後多久內申請、需附什麼？':'病患為原位癌，一般不在重大傷病範圍，請確認是否有其他給付。'}`,'']);}
     if(p.type==='cii'){g.push([`保單版本：第一期乳癌屬「輕度癌症」還是全額給付？原位癌是否除外或列「初期」？輕度給付比例 ${n(p.mild)}% 是否正確？`,'']);g.push(['領取輕度給付後，保單是否繼續有效？日後重度給付是否扣除已領金額？','']);}
     if(g.length)q.push({name:p.name,type:PTYPE[p.type],items:g});}
@@ -548,7 +624,7 @@ function buildQuestions(s,r){const q=[];const op=r.op;const opName=`${op.label}�
 
 function buildDocs(s,r){const nIns=s.policies.length;const copies=nIns+(s.labor?1:0)+(s.group?1:0)+1;const d=[];
   d.push(`<b>診斷證明書正本 × ${copies}</b>（保單 ${nIns} 份${s.labor?'＋勞保 1 份':''}${s.group?'＋團保 1 份':''}＋備用 1 份）。內容：中英文診斷與 ICD-10（${r.c.dcis?'D05.x 原位癌':'C50.x 乳房惡性腫瘤'}）、分期（病理分期出來後可再補開）、手術日期與名稱「${r.op.en}」含${AXILLA[s.axilla]}${r.c.recon?'與'+RECON[s.recon]:''}、住院起訖日與天數、「宜休養 N 日」。`);
-  d.push(`<b>醫療費用收據正本＋費用明細</b>（含自費項目名稱、數量、單價）。${r.newer.length?'新制實支正本給第一家並索取「正本收據留存證明」；':''}${r.older.length?`舊制 ${r.older.length} 家各一份副本（醫院蓋「與正本相符」章）；`:''}${s.group?'團保多接受副本。':''}`);
+  d.push(`<b>醫療費用收據正本＋費用明細</b>（含自費項目名稱、數量、單價）。${r.newer.length?'新制實支正本送第一家，不足額請第一家開立差額證明再送下一家；':''}${r.older.length?`舊制 ${r.older.length} 家各一份副本（醫院蓋「與正本相符」章）；`:''}${s.group?'團保多接受副本。':''}`);
   if(s.policies.some(p=>p.type==='surg'||p.type==='reimb'))d.push('<b>手術紀錄</b>（手術險、部分實支要求；向病歷室申請複本）。');
   if(s.policies.some(p=>['cancer','cii','ciicard'].includes(p.type)))d.push('<b>病理報告</b>（癌症險、重大疾病險、重大傷病險；出院後 1–2 週出爐，確認原位／侵襲、分期、淋巴結）。');
   if(s.policies.some(p=>p.type==='ciicard')||s.nhicat==='apply')d.push('<b>重大傷病證明影本</b>（侵襲性乳癌；出院時由醫院認定申請）。');
@@ -558,68 +634,59 @@ function buildDocs(s,r){const nIns=s.policies.length;const copies=nIns+(s.labor?
   return d;}
 
 function buildFlow(s,r){const c=r.c;const ph=[];
+  if(r.neo)ph.push({title:'術前全身治療（若主治醫師建議）',when:r.neo==='likely'?'確診後、手術前數個月':'待主治醫師決定',hosp:['人工血管植入（健保款或自費款）','化療'+(c.her2?'＋HER2 標靶':'＋免疫治療（符合條件者）')+'，療程與門診／住院方式依主治醫師','療程結束後影像評估再排手術；腫瘤縮小時手術方式可能改變'],mgr:['先確認癌症險的化療、標靶／免疫給付與需要的證明','若住院施打：每次住院是獨立的實支限額，醫囑營養品與自費藥要列在收據上','術後病理有無殘存（pCR／non-pCR）會影響後續用藥與健保條件，病理出來再更新本頁']});
   ph.push({title:'門診確診與決策',when:'手術前 2–4 週',hosp:['切片病理（ER/PR/HER2/Ki-67）、乳房攝影與超音波 ± MRI；survey：抽血、腹部超音波、胸部 X 光','手術方式說明：'+r.op.label+(r.op.selfpay?'（自費手術）':'（健保）')+'；'+(c.recon?'整形外科會診安排 combine 重建':'不重建')+'；'+(s.recon==='oncoplasty'?'oncoplasty 需另簽 oncoplastic permit':''),'門診簽手術與麻醉同意書、麻醉訪視；檢驗 3 個月內有效即可','專科護理師衛教自費項目：Tisseel、術後衣型號、皮膚黏著劑、內視鏡自費同意書（電子簽名）'],mgr:['用本頁盤點保單，術前 7 天前打電話問保險公司（下方問題清單）','向病患說明預估自費與可能理賠，記錄答覆','確認需要的診斷書份數、是否需事前照會','勞保／公司請假與給付文件需求'+(s.smoker?'；吸菸者強調戒菸 4 週':'')+(s.dm?'；糖尿病控糖':'')]});
   ph.push({title:'入院',when:'手術前一日或當日',hosp:['簽床報到；住院系統標示重大傷病（已持卡者）','週一手術者前一工作日開核醫前哨淋巴結定位；不可觸知病灶視需要做定位','Pre-op 套餐：午夜後禁食、生命徵象、一般飲食；乾淨手術不需預防性抗生素'+(c.recon?'；重建套餐含抗生素與導尿管':''),'惡性病人一律會診復健科；人體生物資料庫同意書（自願）','入院時確認自費項目並開立：'+(r.items.filter(i=>i.pool!=='opd').map(i=>i.name).join('、')||'（未勾選）')],mgr:['確認所有自費同意書已簽、價格與病患認知一致','預先登記診斷書份數與收據副本需求','提醒帶無鋼圈束胸／術後衣']});
   ph.push({title:'手術日',when:'D0',hosp:[r.op.label+'＋'+AXILLA[s.axilla]+(c.recon?'＋'+RECON[s.recon]:''),'術中檢體方向標記；有鈣化者術中檢體乳房攝影確認','Post-op 套餐：止痛（護胃＋NSAID＋Tramadol prn＋Ultracet）'+(s.pca?'、自費 PCA':'')+'；引流量紀錄；禁食 6 小時；依主治醫師交待彈繃或腋下毛巾；糖尿病者測血糖'],mgr:['手術名稱以病歷記載為準，之後診斷書要一致','家屬說明預計住院天數：約 '+r.days+' 天（依引流量調整）']});
   ph.push({title:'術後到出院',when:'D1 至出院（預計第 '+r.days+' 天）',hosp:['引流量監測、傷口'+(c.total?'與乳頭血循':'')+'觀察、下床活動、肩關節復健指導','止痛／抗生素／Transamin 依主治醫師慣例，入院時確認','飲食：一般飲食、高蛋白；食慾差才考慮醫師開立營養補充品','出院帶藥：止痛 3–5 天；原本的荷爾蒙／標靶藥確認續用；部分主治醫師慣例帶抗生素與 Transamin 3 天','出院文件：診斷書、收據正本＋明細'+(r.older.length?'＋副本':'')+'、出院病摘；'+(s.nhicat==='apply'?'住院系統認定重大傷病':'原位癌不認定重大傷病'),'回診約 2 週後（太早回診引流管可能拔不掉）；'+(c.partial?'部分切除者預約放射腫瘤科':'全切除且淋巴結陰性者通常不需放療')],mgr:['核對收據自費明細逐項列出（保險公司會看品名）','診斷書欄位檢查：ICD-10、手術名稱含「內視鏡輔助」、住院天數、宜休養天數','影印一套文件留底再送件'+(s.labor?'；勞保傷病給付出院後申請（住院 ≥ 4 天）':'')]});
-  ph.push({title:'回診與後續',when:'2 週至 5 年',hosp:['拔引流管、病理報告說明（pTNM、邊緣、淋巴結）→ 需要時補開含分期的診斷書',(c.erpos&&c.invasive?'ER 陽性：荷爾蒙治療 5–10 年；淋巴結陰性可考慮 Oncotype DX 決定化療':'')+(c.her2?'HER2 陽性：標靶治療（健保有條件給付）':'')+(c.tnbc?'三陰性：化療為主，BRCA 檢測':'')+(c.dcis?'原位癌：'+(c.partial?'放療＋':'')+'（ER 陽性者）荷爾蒙治療':''),'追蹤：術後 5 年內每 6 個月 survey（抽血、腹超、乳超、CXR），乳房攝影每年；5 年後每年一次',(c.alnd?'淋巴水腫預防：袖套、患側避免量血壓／抽血／提重':'前哨淋巴結切片者淋巴水腫風險低，仍避免患側長時間受壓')+(s.recon==='expander'?'；擴張器 3–6 個月後二階段置換義乳，再住院一次':'')],mgr:['追蹤理賠進度：實支 30 天內給付常見；一次金待病理報告','病理分期若與術前不同（升期／降期），通知病患重新確認癌症險／重疾險認定',(s.recon==='expander'?'二階段手術前再跑一次本頁流程':'建立下次門診前的待辦')]});
+  ph.push({title:'回診與後續',when:'2 週至 5 年',hosp:['拔引流管、病理報告說明（pTNM、邊緣、淋巴結）→ 需要時補開含分期的診斷書',(c.hrpos&&c.invasive?'荷爾蒙受體陽性：荷爾蒙治療 5–10 年'+(c.erpos?'；淋巴結陰性可考慮 Oncotype DX 決定化療':'')+'；':'')+(c.her2?'HER2 陽性：標靶治療（健保有條件給付）':'')+(c.tnbc?'三陰性：化療為主，BRCA 檢測':'')+(c.dcis?'原位癌：'+(c.partial?'放療＋':'')+'（ER 陽性者）荷爾蒙治療':''),'追蹤：術後 5 年內每 6 個月 survey（抽血、腹超、乳超、CXR），乳房攝影每年；5 年後每年一次',(c.alnd?'淋巴水腫預防：袖套、患側避免量血壓／抽血／提重':'前哨淋巴結切片者淋巴水腫風險低，仍避免患側長時間受壓')+(s.recon==='expander'?'；擴張器 3–6 個月後二階段置換義乳，再住院一次':'')],mgr:['追蹤理賠進度：實支 30 天內給付常見；一次金待病理報告','病理分期若與術前不同（升期／降期），通知病患重新確認癌症險／重疾險認定',(s.recon==='expander'?'二階段手術前再跑一次本頁流程':'建立下次門診前的待辦')]});
   return ph;}
 
 function buildCare(s,r){const c=r.c;const sec=[];
   sec.push({h:'術前 2–4 週',b:[s.smoker?'立即戒菸（含電子煙）：乳頭保留與重建的皮瓣壞死風險與吸菸直接相關，至少術前 4 週':'不吸菸：維持；二手菸也避免',s.dm?'糖尿病：術前血糖控制（HbA1c 目標與主治醫師討論），傷口感染與癒合風險':'血糖正常者維持均衡飲食','蛋白質 1.2–1.5 g／公斤／日（60 公斤約 72–90 g）：蛋、魚、瘦肉、豆製品、乳製品；一般飲食即可，不需額外保健品','術前 7 天停用魚油、銀杏、人參、大蒜精、高劑量維生素 E 等影響凝血的保健品（依麻醉科指示）；中藥需告知','酒精暫停；體重維持穩定']});
-  sec.push({h:'住院期間（D0–出院）',b:['術後禁食 6 小時後由清淡飲食進到一般飲食','每餐 20–30 g 蛋白質；食慾差才考慮醫師開立的均衡配方營養品 1–2 罐／日作為補充，不取代正餐','<b>保險提醒</b>：自購營養品不在實支實付範圍；住院期間醫師開立並列入收據者可嘗試申請，但常被認定非必要','水分充足；止痛藥易便秘，補纖維與水；避免酒精','疼痛控制（口服止痛'+(s.pca?'＋PCA':'')+'）、早期下床']});
+  sec.push({h:'住院期間（D0–出院）',b:['術後禁食 6 小時後由清淡飲食進到一般飲食','每餐 20–30 g 蛋白質；食慾差才考慮醫師開立的均衡配方營養品 1–2 罐／日作為補充，不取代正餐','<b>保險提醒</b>：自購營養品不在實支實付範圍；住院期間醫師開立並列入收據者可嘗試申請，但常被認定非必要（每次住院的品項見「術後治療」分頁）','水分充足；止痛藥易便秘，補纖維與水；避免酒精','疼痛控制（口服止痛'+(s.pca?'＋PCA':'')+'）、早期下床']});
   sec.push({h:'傷口、疤痕與衣物',b:['術後衣／束胸日夜穿 4–6 週'+(c.recon?'（重建者依整形外科指示）':''),'帶引流管返家者每日紀錄引流量與顏色，回診拔管','拆線、傷口癒合後約 2 週開始矽敷貼或除疤凝膠，持續 3–6 個月；防曬',c.total?'乳頭保留手術：觀察乳頭顏色變化（發紫、發黑）立即回診':'部分切除：放療期間皮膚保濕（無香料乳液或自費舒放療），避免摩擦與高溫']});
   sec.push({h:'活動、復健與淋巴水腫',b:['術後第 1 天起握拳、手腕與手肘運動；引流管拔除前肩關節外展不超過 90 度，拔除後逐步到全範圍（復健科衛教單）',c.recon?'義乳重建：4–6 週避免胸大肌用力與提重；依整形外科限制':'無重建者 2–4 週可恢復日常活動，避免提重',c.alnd?'ALND：患側避免量血壓、抽血、打針、提重物超過 5 公斤；搭機與運動戴袖套；皮膚保護；手臂腫脹盡早回診':'SLNB：淋巴水腫風險低，仍建議患側避免長時間受壓與外傷']});
-  sec.push({h:'長期（荷爾蒙治療、放療期間與之後）',b:['體重控制（BMI 24 以下）、每週 150 分鐘中等強度運動，與復發風險相關','大豆食物（豆腐、豆漿）適量安全；避免高劑量大豆異黃酮萃取補充劑'+(c.erpos?'（ER 陽性尤其）':''),c.erpos&&c.invasive?'芳香環酶抑制劑使用者：鈣 1,200 mg／日＋維生素 D，追蹤骨密度':'治療期間任何維生素、抗氧化劑補充品先與主治醫師討論','酒精限制；治療期間的補充品與用藥交互作用先問藥師','醫院癌症資源中心可提供假髮借用、營養諮詢、補助轉介；病友團體另有義乳胸衣等資源']});
+  sec.push({h:'長期（荷爾蒙治療、放療期間與之後）',b:['體重控制（BMI 24 以下）、每週 150 分鐘中等強度運動，與復發風險相關','大豆食物（豆腐、豆漿）適量安全；避免高劑量大豆異黃酮萃取補充劑'+(c.hrpos?'（ER 陽性尤其）':''),c.hrpos&&c.invasive?'芳香環酶抑制劑使用者：鈣 1,200 mg／日＋維生素 D，追蹤骨密度':'治療期間任何維生素、抗氧化劑補充品先與主治醫師討論','酒精限制；治療期間的補充品與用藥交互作用先問藥師','醫院癌症資源中心可提供假髮借用、營養諮詢、補助轉介；病友團體另有義乳胸衣等資源']});
   return sec;}
 
-/* ---------- render ---------- */
-let lastR=null;
-function render(){const s=state;const r=compute(s);lastR=r;
-  // summary
-  const net=r.netHospital;const surplus=net<0?-net:0;
-  $('sec_summary').innerHTML=`<div class="card-head"><h2>結算摘要</h2><p>${esc(STAGES[s.stage].label)} · ${esc(RECEPTORS[s.receptor])} · ${esc(r.op.label)}＋${esc(AXILLA[s.axilla])}${r.c.recon||s.recon==='oncoplasty'?'＋'+esc(RECON[s.recon]):''} · 預計住院 ${r.days} 天</p></div>
-  <div class="settle">
-    <div class="box"><span class="k">住院醫療自費估計</span><span class="v">${fmt0(r.hospitalSelf)}</span><span class="s">自費手術費 ${fmt0(r.opFee)}${r.implant?'、植入物 '+fmt0(r.implant):''}、耗材／用品 ${fmt0(r.misc+r.care)}、病房差額 ${fmt0(r.roomDiff)}${r.pca?'、PCA '+fmt0(r.pca):''}、部分負擔 ${fmt0(r.copay)}</span></div>
-    <div class="box"><span class="k">實支實付／團保可申請</span><span class="v">${fmt0(r.reimbTotal)}</span><span class="s">依限額與損害填補原則估算</span></div>
-    <div class="box"><span class="k">定額給付（手術險、日額、癌症險住院／手術／重建）</span><span class="v">${fmt0(r.fixedTotal)}</span><span class="s">不受實際費用限制</span></div>
-    <div class="box key"><span class="k">${net>=0?'住院費用扣除理賠後自付':'理賠超過住院自費，結餘'}</span><span class="v">${fmt0(net>=0?net:surplus)}</span><span class="s">${r.opd?'另有門診自費檢測 '+fmt0(r.opd)+'（多數不理賠）':'未含門診自費檢測'}</span></div>
-    <div class="box"><span class="k">一次金（癌症險、重大疾病險、重大傷病險）</span><span class="v">${fmt0(r.lumpTotal)}</span><span class="s">依分期認定，病理報告後申請</span></div>
-    <div class="box"><span class="k">勞保普通傷病給付</span><span class="v">${fmt0(r.labor)}</span><span class="s">${s.labor?'住院第 4 天起、投保薪資 50%':'未勾選勞保'}</span></div>
-  </div>`;
-  // flags
-  $('sec_flags').innerHTML=r.flags.map(f=>`<div class="flag ${f.lv}">${f.t}</div>`).join('');
-  // items table
-  const rows=[];const src=(it)=>it.src==='pdf'?'<span class="badge pdf">講義價</span>':'<span class="badge est">估</span>';
-  rows.push(['健保給付之手術與住院（'+(r.op.total?'乳房全切除':'乳房部分切除')+'、'+AXILLA[s.axilla]+'、麻醉、病房、檢驗）','—','<span class="chip nhi">健保</span>','部分負擔 '+fmt0(r.copay)+(s.nhicat==='has'?'（重大傷病免）':''),'健保申報；部分負擔可由實支雜費申請']);
-  if(r.op.selfpay)rows.push([r.op.label+' 自費手術費<span class="badge est">估</span>',fmt0(r.opFee),'<span class="chip self">自費</span>','<span class="chip ins">實支：手術費（或併雜費）</span><span class="chip ins">手術險：比照</span>','院方以自費手術排程；收據歸類要先問']);
-  if(r.implant)rows.push([RECON[s.recon]+' 植入物<span class="badge est">估</span>',fmt0(r.implant),'<span class="chip self">自費</span>','<span class="chip ins">實支：雜費</span><span class="chip ins">癌症險：重建金</span>','自體皮瓣手術費部分有健保']);
-  if(r.pca)rows.push(['自控式止痛 PCA<span class="badge est">估</span>',fmt0(r.pca),'<span class="chip self">自費</span>','<span class="chip ins">實支：雜費</span>','']);
-  if(r.roomDiff)rows.push([(s.room==='single'?'單人房':'雙人房')+'差額 '+fmt0(n(s.roomdiff))+'／日 × '+r.days,fmt0(r.roomDiff),'<span class="chip self">自費</span>','<span class="chip ins">實支：病房差額</span>','受每日限額']);
-  for(const it of r.items){const claim=it.pool==='misc'?'<span class="chip ins">實支：雜費</span>':(it.pool==='care'?'<span class="chip ins">實支：雜費（可能剔除）</span>':'<span class="chip none">門診，多數不理賠</span>');rows.push([it.name+src(it),fmt0(it.price),'<span class="chip self">自費</span>',claim,it.when||it.spec]);}
-  $('sec_items').innerHTML=`<div class="card-head"><h2>理賠項目對照</h2><p>每個項目可能由哪個給付項目支付。「可能剔除」表示列於住院收據但保險公司常以非醫療必要為由不賠。</p></div>
-  <div class="tbl"><table><thead><tr><th>項目</th><th class="r">金額</th><th>健保／自費</th><th>可能理賠來源</th><th>備註</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${x[0]}</td><td class="r">${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td class="small muted">${esc(x[4])}</td></tr>`).join('')}
-  <tr class="total"><td>住院醫療自費合計</td><td class="r">${fmt0(r.hospitalSelf)}</td><td colspan="3">${r.opd?'門診自費檢測另計 '+fmt0(r.opd):''}</td></tr></tbody></table></div>`;
-  // claims by policy
-  $('sec_claims').innerHTML=`<div class="card-head"><h2>各保單預估給付</h2><p>估算邏輯：新制實支依實際費用與限額、多張共同分攤；舊制各自給付；定額與一次金依條款比例。</p></div>
-  ${r.lines.length?`<div class="tbl"><table><thead><tr><th>保單</th><th>項目</th><th class="r">預估</th><th>依據／前提</th></tr></thead><tbody>${r.lines.map(l=>l.rows.map((row,i)=>`<tr>${i===0?`<td rowspan="${l.rows.length}"><b>${esc(l.policy)}</b><div class="small muted">${esc(l.kind)}</div></td>`:''}<td>${esc(row[0])}</td><td class="r">${fmt0(row[1])}</td><td class="small muted">${esc(row[2])}</td></tr>`).join('')).join('')}
-  <tr class="total"><td colspan="2">合計（實支＋定額）／ 一次金 ／ 勞保</td><td class="r">${fmt0(r.reimbTotal+r.fixedTotal)} ／ ${fmt0(r.lumpTotal)} ／ ${fmt0(r.labor)}</td><td></td></tr></tbody></table></div>`:'<p class="muted">尚未加入保單。</p>'}`;
-  // questions
-  const qs=buildQuestions(s,r);
-  $('sec_questions').innerHTML=`<div class="card-head"><h2>打電話給保險公司：問題清單</h2><p>依保單分組，照唸即可；把答覆記在備註欄位或病歷。</p></div>
-  ${qs.map(g=>`<div class="qgroup"><h3>${esc(g.name)}${g.type?` <span class="chip ins">${esc(g.type)}</span>`:''}</h3><ol>${g.items.map(it=>`<li>${esc(it[0])}${it[1]?`<span class="why">${esc(it[1])}</span>`:''}</li>`).join('')}</ol></div>`).join('')}`;
-  // docs
-  $('sec_docs').innerHTML=`<div class="card-head"><h2>要跟醫院索取的文件</h2><p>出院當天一次辦齊最省事；病理分期出來後再補一份含分期的診斷書。</p></div><ul>${buildDocs(s,r).map(d=>`<li>${d}</li>`).join('')}</ul>`;
-  // flow
-  const ph=buildFlow(s,r);
-  $('sec_flow').innerHTML=`<div class="card-head"><h2>住院流程套餐</h2><p>醫院作業欄整理自醫學中心乳房外科講義（住院天數、出院標準依主治醫師）；個管師欄是保險與衛教動作。</p></div>
-  <div class="timeline">${ph.map(p=>`<div class="phase"><div class="dot" aria-hidden="true"></div><div><div class="ph-head"><h3>${esc(p.title)}</h3><span class="when">${esc(p.when)}</span></div><div class="cols"><div><h4>醫院作業</h4><ul>${p.hosp.filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div><h4>個管師／保險</h4><ul>${p.mgr.filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div></div></div>`).join('')}</div>`;
-  // care
-  const care=buildCare(s,r);
-  $('sec_care').innerHTML=`<div class="card-head"><h2>營養與術後照護建議</h2><p>一般原則，個別病患以主治醫師、營養師與復健師指示為準；可直接複製到衛教單。</p></div><div class="care">${care.map(c=>`<div><h3>${esc(c.h)}</h3><ul>${c.b.filter(Boolean).map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>`;
-}
+/* 術後治療路徑：只列決策點與健保／自費／保險重點，治療選擇以主治醫師為準（不引用 NCCN 原文） */
+function buildAdjuvant(s,r){const c=r.c;const rows=[];
+  // 放射治療
+  if(c.partial)rows.push({t:'放射治療',when:c.dcis?'原位癌乳房保留後多數會建議放療；低風險者可與放射腫瘤科討論是否省略':'乳房保留手術後原則上需全乳放療（約 3–5 週）；高齡、小腫瘤、ER 陽性且接受荷爾蒙治療者，可討論是否省略',nhi:'健保給付'+(c.invasive?'；持重大傷病證明免門診部分負擔':'；原位癌無重大傷病證明，每次門診部分負擔自付'),self:'放療皮膚照護（舒放療、保濕乳）自費；交通與請假',ins:'癌症險：放療給付（多按次）；實支：門診放療多不適用，部分新式保單含門診癌症治療，需問'});
+  else rows.push({t:'放射治療',when:'全切除且淋巴結陰性：通常不需放療；腫瘤大、切緣近或病理升期時由放射腫瘤科評估',nhi:'需要時健保給付',self:'—',ins:'需要時同上'});
+  // 荷爾蒙治療
+  if(c.hrpos&&c.invasive){const pre=c.pre,post=c.post;
+    rows.push({t:'荷爾蒙治療（口服）',when:(pre?'停經前：tamoxifen 為主':post?'停經後：芳香環酶抑制劑（AI）或 tamoxifen':'依停經狀態選 tamoxifen 或 AI')+'；至少 5 年，依復發風險可延長',nhi:'tamoxifen：第 9 節未設限。停經後 AI：letrozole 輔助以 5 年為限（由 tamoxifen 轉換合計 5 年）；anastrozole 早期限無法用 tamoxifen（血栓或子宮內膜風險）者；exemestane 限 tamoxifen ≥2 年後、最多 3 年。tamoxifen 5 年後延伸 letrozole 限淋巴結陽性。abemaciclib 輔助限淋巴結陽性高風險',verify:SRC_NHI9,self:'淋巴結陰性者延長到 5 年以上若用 AI，多需自費；'+(post||!pre?'AI 使用者：骨密度追蹤、鈣與維生素 D':'副作用（熱潮紅、婦科追蹤）門診處理'),ins:'癌症險：口服荷爾蒙藥是否算「癌症治療」給付需問；實支：門診用藥多不適用'});
+    if(!post)rows.push({t:'卵巢功能抑制（停經針 GnRH 注射）',when:'停經前、復發風險較高者可能加打（每 1 或 3 個月一針），是否需要與期間由主治醫師決定',nhi:'5.5.1：限停經前（或更年期前），需事前審查。早期乳癌須完全符合六點：與 tamoxifen 併用、作為術後取代化療的輔助療法；ER/PR 2+ 或 3+、HER2 FISH 陰性或 IHC 1+、淋巴結轉移 ≤3 個，需事前審查並說明無法接受化療的原因；leuprorelin、goserelin 或 triptorelin 使用 3 年、tamoxifen 5 年',self:c.her2?'HER2 陽性不符健保條件：若主治醫師建議卵巢功能抑制，GnRH 全程自費，每針請向醫院詢價':'有接受化療、或改用 AI 合併 GnRH 者不符「取代化療」條件，多需自費；符合者第 4–5 年也需自費。每針請向醫院詢價',ins:'癌症險：注射是否算癌症治療給付需問；實支：門診注射多不適用',verify:'健保第 5 節條文（115/8/21 版）'});}
+  if(c.hrpos&&c.dcis)rows.push({t:'荷爾蒙治療（原位癌）',when:'ER 陽性原位癌，乳房保留後可考慮 tamoxifen（或 AI）約 5 年降低再發風險，屬選擇性',nhi:'健保給付口服藥',self:'—',ins:'癌症險多不給付原位癌後續用藥，需問'});
+  // 化學治療
+  if(c.invasive){let when='';
+    if(c.erpos)when='ER 陽性、淋巴結陰性：多依 21 基因檢測（Oncotype DX）分數、年齡與停經狀態決定是否化療';
+    else if(c.tnbc)when=(r.neo==='likely'?'常先做術前化療（合併免疫治療）':'腫瘤超過約 0.5 cm 多數會建議化療')+'；術後若有殘存，後續口服藥由腫瘤科評估';
+    else if(c.her2)when=r.neo==='likely'?'與標靶藥併用；腫瘤約 2 cm 以上常先做術前化療＋標靶':'與標靶藥併用；小腫瘤常用 paclitaxel＋trastuzumab 較輕療程';
+    else when='受體未定，待病理';
+    rows.push({t:'化學治療',when,nhi:'化療藥健保給付；人工血管植入有健保款',self:'常見自費：長效白血球生長激素（Neulasta）、部分止吐藥、自費款人工血管、頭皮冷卻、假髮',ins:'癌症險：化療給付（按次／療程）；化療若住院施打，每次住院各自適用實支限額'});}
+  // HER2 標靶
+  if(c.her2&&c.invasive){const tn=trastNHI(s,c);rows.push({t:'HER2 標靶治療',when:'trastuzumab 合計約 1 年；術前治療後仍有殘留病灶者，可能改用 T-DM1（Kadcyla）'+(c.hrpos?'；三陽性另需荷爾蒙治療（見上）':''),nhi:`trastuzumab（9.18，HER2 IHC 3+ 或 FISH+，事前審查、每 24 週再申請）：${tn.text}。pertuzumab／Phesgo（9.70）：早期乳癌限腋下淋巴結轉移，淋巴結陰性不給付。T-DM1（9.87）：術前至少 6 次化療（含 ≥3 次 taxane）與 ≥3 次 trastuzumab 後仍有殘留病灶，且為淋巴結陽性或「ER 陰性且腫瘤 >2 cm」；術後 12 週內開始，上限 14 次`+(c.hrpos?'；三陽性淋巴結陰性不符 T-DM1 條件':''),self:(tn.ok==='no'?'trastuzumab 未達健保門檻時全程自費；':'')+'淋巴結陰性者的 pertuzumab／Phesgo 自費'+(c.hrpos?'，殘留病灶時的 T-DM1 自費':'')+'；非上述生物相似藥的廠牌不在部分路徑的給付範圍，請先取得醫院報價',ins:'癌症險：標靶藥物給付（是否含自費標靶、上限）需問',verify:SRC_NHI9});}
+  // 免疫治療
+  if(c.tnbc&&c.invasive&&r.neo){const ok=c.size>2||(s.stage==='s2'&&!c.size);rows.push({t:'免疫治療（三陰性）',when:'腫瘤約 2 cm 以上或淋巴結陽性：術前化療合併 pembrolizumab；術後未達 pCR 者續用',nhi:'pembrolizumab（9.69，114/6/1）：第 II–IIIb 期（cT1c N1-2 或 T2-4 N0-2）。術前與 carboplatin＋paclitaxel 併用至多 4 次，接 cyclophosphamide＋doxorubicin／epirubicin 至多 4 次；術後限未達 pCR 者單用至多 9 次；合計至多 17 次；術後 pembrolizumab 與 olaparib 擇一。'+(ok?'本例淋巴結陰性、腫瘤 >2 cm，符合 cT2N0':'本例淋巴結陰性、腫瘤 ≤2 cm，不符'),self:(ok?'':'不符健保條件，若使用需自費；')+'免疫相關副作用（甲狀腺、心肌）需追蹤',ins:'癌症險：免疫治療是否列入標靶／特定治療給付需問',verify:SRC_NHI9});}
+  if(c.invasive&&(c.tnbc||c.erpos))rows.push({t:'PARP 抑制劑 olaparib（BRCA 帶因者）',when:'germline BRCA1/2 帶因、HER2 陰性且高復發風險者，術後 1 年（依主治醫師）',nhi:'olaparib（114/6/1）：須完成至少 6 次含 anthracycline 或 taxane 的化療，最後一次治療後 12 週內開始，上限 1 年。'+(c.tnbc?'三陰性：術前化療後未達 pCR，或先手術＋術後化療且 pN+ 或病理腫瘤 ≥2 cm':'HR 陽性／HER2 陰性：術前化療後未達 pCR，或術後化療且 ≥4 顆陽性淋巴結（淋巴結陰性先手術者不符）'),self:'不符條件者自費；BRCA 檢測本身見自費項目',ins:'癌症險：標靶藥物給付需問',verify:SRC_NHI9});
+  return rows;}
 
-/* ---------- markdown export ---------- */
+/* 每次住院的營養品與自費處方（整理自醫學中心乳房外科講義的自費處方清單；價格未載者不計入試算） */
+const ADMIT_NUTRI=[
+  ['醫囑營養配方（均衡／高蛋白）','食慾差、體重下降時由醫師或營養師開立；講義未列品項與價格'],
+  ['益生菌：表飛鳴、妙利散、阿德比','出院自費處方；表飛鳴一罐 500 錠、阿德比一罐 50 粒'],
+  ['魚油 Omacor 1000 mg','出院自費處方；一罐 28 顆 1,680 元（講義價）'],
+  ['愛康鈣 D3（alfacalcidol）','出院自費處方；講義未載價格'],
+  ['口腔照護：齒博士牙膏、保馬生／必達定漱口水、得伏寧噴劑、漱口妥','化療口腔黏膜炎時；漱口妥需簽自費同意書，價格請查院內系統']];
+const NUTRI_RULES=[
+  '<b>每一次住院各自計算</b>：手術、人工血管植入、化療住院都是獨立的一次住院，實支的雜費限額每次分開算；要有理賠依據，品項須是住院期間醫囑開立、列在該次住院收據上的。',
+  '<b>出院自費帶藥</b>（益生菌、魚油、鈣 D3）：有的保單給付出院帶藥，有的以保健用途剔除，送件前先問。',
+  '<b>自購營養品、保健食品不理賠。</b>',
+  '<b>住院與病歷主訴必須反映實際醫療需要</b>：保險公司會調閱病歷審查住院必要性，不可為了理賠安排住院或調整主訴。'];
+
 function stripTags(h){return String(h).replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"');}
 function buildMarkdown(){const s=state;const r=lastR||compute(s);const L=[];
   L.push('# 乳癌手術理賠套餐（估算）');L.push(`情境：${STAGES[s.stage].label}、${RECEPTORS[s.receptor]}、${r.op.label}＋${AXILLA[s.axilla]}${r.c.recon||s.recon==='oncoplasty'?'＋'+RECON[s.recon]:''}，預計住院 ${r.days} 天。`);
@@ -630,40 +697,23 @@ function buildMarkdown(){const s=state;const r=lastR||compute(s);const L=[];
   L.push('','## 問保險公司');buildQuestions(s,r).forEach(g=>{L.push(`### ${g.name}`);g.items.forEach((it,i)=>L.push(`${i+1}. ${it[0]}`));});
   L.push('','## 文件');buildDocs(s,r).forEach(d=>L.push('- '+stripTags(d)));
   L.push('','## 住院流程套餐');buildFlow(s,r).forEach(p=>{L.push(`### ${p.title}（${p.when}）`);L.push('醫院作業：');p.hosp.filter(Boolean).forEach(x=>L.push('- '+x));L.push('個管師／保險：');p.mgr.filter(Boolean).forEach(x=>L.push('- '+x));});
+  L.push('','## 術後治療路徑與長期費用（依主治醫師確認）');buildAdjuvant(s,r).forEach(a=>L.push(`- **${a.t}**：${a.when}。健保：${a.nhi}${a.verify?'（'+a.verify+'）':''}。自費：${a.self}。保險：${a.ins}`));
+  L.push('','### 每次住院的營養品與自費處方');ADMIT_NUTRI.forEach(x=>L.push(`- ${x[0]}：${x[1]}`));NUTRI_RULES.forEach(x=>L.push('- '+stripTags(x)));
   L.push('','## 營養與照護');buildCare(s,r).forEach(c=>{L.push(`### ${c.h}`);c.b.filter(Boolean).forEach(x=>L.push('- '+stripTags(x)));});
   L.push('','_金額為估算，以保單條款與保險公司核定為準；醫療決策以主治醫師為準。_');return L.filter(x=>x!==undefined).join('\n');}
-$('btnCopy').addEventListener('click',()=>copyText(buildMarkdown()));
-
-/* ---------- Claude (sample capability) ---------- */
 const RULES=`【健保】乳房全切除／部分切除、SLNB、ALND 的手術與住院費健保給付；「內視鏡輔助」在醫學中心以自費手術排程（Self-pay endoscopic assisted mastectomy），自費手術費與內視鏡耗材自付；達文西亦自費。重建：義乳植入物、擴張器自費，自體皮瓣手術費部分健保。住院部分負擔：急性病房 30 日內 10%；持重大傷病證明者該疾病住院免部分負擔。重大傷病：侵襲性乳癌（C50.x，含第一期）可申請、效期 5 年、醫院出院時認定（需病理報告）；原位癌（D05.x）一般不在範圍。基因檢測：BRCA 健保有條件（如三陰性）；Oncotype DX 自費 175,000。
-【實支實付】病房差額／手術費／雜費三限額；自費醫材、部分負擔、植入物多歸雜費；自費手術費可能被歸手術費而受限，部分保單可超額併入雜費（必問）。2024/7 起新制保單採正本收據與損害填補（正本理賠 2024/10/1 上路、不溯及既往），舊制可副本；新舊並存先送新制再送舊制；第一家開「正本收據留存證明」。未以健保身分就醫多按 65%。多含住院前後門診（常見前 7 後 14 日）。門診自費檢測多不理賠；營養品、自購用品不理賠，住院期間醫師開立並列收據之帶回材料可申請但可能被認定非必要。
+【實支實付】病房差額／手術費／雜費三限額；自費醫材、部分負擔、植入物多歸雜費；自費手術費可能被歸手術費而受限，部分保單可超額併入雜費（必問）。2024/7/1 起新投保的實支實付採正本收據與損害填補，不溯及既往（7/1 前保單仍可副本）；多張時先送一家，該公司須開差額證明供下一家理賠。未以健保身分就醫多按 65%。多含住院前後門診（常見前 7 後 14 日）。門診自費檢測多不理賠；營養品、自購用品不理賠，住院期間醫師開立並列收據之帶回材料可申請但可能被認定非必要。
+【國泰人壽範本】新實全心意PLUS住院醫療附約（外溢型，114.04.24 備查）：M20／M30 每日住院經常費用 2,000／3,000 元、每次住院醫療費用 20／30 萬元、住院日額 2,000／3,000 元與實支「擇優」給付；未設住院手術費獨立限額（自費手術費併入每次住院醫療費用）；門診手術每次 2／2.5 萬元、自負額 1,000；加護病房住院慰問 6,000 元；非健保身分就醫按 65%；條款未提住院前後門診。鍾愛守護防癌定期保險（2026/1 版，保額以 100 萬為例）：初期（原位癌／零期）或輕度（含第一期乳癌）給付 20%，重度 100% 扣除已領，合計上限 100%；等待期 90 日；自第二保單年度起給付；特定癌症（食道、胃、肝、胰、肺、子宮頸）另給 60%；無住院、手術、重建、化放療給付。第二期以上乳癌視為重度，但以條款分期定義為準。
 【手術險】依手術項目表倍數；內視鏡輔助通常比照乳房全切除／部分切除，需確認對應項目、倍數、自費手術是否影響、合併手術是否併計。【住院日額】日額×天數，或有手術加給、療養金。
 【癌症險】一次金多有 90 天等待期；原位癌多列初期／低侵襲性給付 10–25% 或定額；2016 年重大疾病示範條款將第一期乳癌列為輕度癌症，沿用分級的癌症險第一期可能只給輕度比例；療程型另有癌症住院日額、手術金、乳房重建金、放化療門診給付。
 【重大傷病險】以取得健保重大傷病證明為要件：侵襲性乳癌可（核卡後），原位癌不可。【重大疾病險】2016 前舊版癌症不分級但除外原位癌等；2016 示範條款分重度／輕度，輕度表列含第一期乳癌（乙型給付比例依保單常見 10–30%，甲型不保輕度），原位癌除外或另列初期；第二期以上重度全額。
 【勞保】普通傷病給付：住院不能工作未領薪者，自住院第 4 日起按前 6 個月平均投保薪資 50% 日給至出院；出院後不給付；需診斷書載明住院日期。
 【文件】診斷證明書（中英文診斷、ICD-10、分期、手術名稱含「內視鏡輔助」、手術日、住院起訖、宜休養天數）、收據正本＋費用明細（新制正本；舊制副本蓋章）、手術紀錄、病理報告、出院病摘、重大傷病證明影本、理賠申請書。
-【醫學中心乳房外科流程】門診已簽手同與麻醉訪視、檢驗 3 個月內有效；入院確認自費項目（Tisseel：全切除 10 mL／部分切除 2 mL，講義註記病人有保險給付時連 SLND 也可開；術後衣由專科護理師聯絡廠商選型號；皮膚黏著劑 partial 1 支／simple 2 支；矽敷貼 198／234；除疤凝膠 1,526–1,980；Imosa 術後衣 8,680；可吸收止血劑 11,099；壓力束帶 2,100）；週一手術前一工作日開核醫 SLN 定位；乾淨手術不需術前抗生素，重建才需且放導尿管；惡性病人一律會診復健科；術中檢體標記與術中乳房攝影；術後套餐止痛（護胃、NSAID、Tramadol prn、Ultracet）、引流紀錄、禁食 6 小時；抗生素／Transamin 依主治醫師慣例；出院帶止痛 3–5 天、原荷爾蒙／標靶藥確認續用；出院時住院系統認定重大傷病（侵襲性乳癌）；回診約 2 週（太早回診引流管可能拔不掉）；需放療者掛放射腫瘤科（淋巴結陽性、T3、部分切除）；術後 5 年內每 6 個月 survey，乳房攝影每年。`;
+【醫學中心乳房外科流程】門診已簽手同與麻醉訪視、檢驗 3 個月內有效；入院確認自費項目（Tisseel：全切除 10 mL／部分切除 2 mL，講義註記病人有保險給付時連 SLND 也可開；術後衣由專科護理師聯絡廠商選型號；皮膚黏著劑 partial 1 支／simple 2 支；矽敷貼 198／234；除疤凝膠 1,526–1,980；Imosa 術後衣 8,680；可吸收止血劑 11,099；壓力束帶 2,100）；週一手術前一工作日開核醫 SLN 定位；乾淨手術不需術前抗生素，重建才需且放導尿管；惡性病人一律會診復健科；術中檢體標記與術中乳房攝影；術後套餐止痛（護胃、NSAID、Tramadol prn、Ultracet）、引流紀錄、禁食 6 小時；抗生素／Transamin 依主治醫師慣例；出院帶止痛 3–5 天、原荷爾蒙／標靶藥確認續用；出院時住院系統認定重大傷病（侵襲性乳癌）；回診約 2 週（太早回診引流管可能拔不掉）；需放療者掛放射腫瘤科（淋巴結陽性、T3、部分切除）；術後 5 年內每 6 個月 survey，乳房攝影每年。
+【術後治療與健保】放療：乳房保留後原則上需放療，健保給付；侵襲性乳癌持重大傷病證明免門診部分負擔，原位癌無證明需自付。荷爾蒙：口服 tamoxifen／AI 健保給付，至少 5 年。停經針 GnRH analogue（leuprorelin、goserelin、triptorelin；健保第 5 節 5.5.1 條文）：乳癌限停經前（或更年期前）且需事前審查；早期乳癌只在與 tamoxifen 併用、作為術後取代化療的輔助療法時給付，ER/PR 2+ 或 3+、HER2 FISH 陰性或 IHC 1+、淋巴結轉移 ≤3 個，需事前審查並說明無法化療原因，GnRH 給付 3 年、tamoxifen 5 年；因此有化療、改用 AI、HER2 陽性（含三陽性）或第 4–5 年者多需自費；轉移性乳癌另限荷爾蒙受體陽性之停經前婦女。以下依健保第 9 節條文（115/9/22 版）：AI：letrozole 停經後輔助以 5 年為限（含由 tamoxifen 轉換），tamoxifen 5 年後延伸 letrozole 限淋巴結陽性；anastrozole 早期限無法用 tamoxifen 者；exemestane 限 tamoxifen ≥2 年後、≤3 年；abemaciclib 輔助限淋巴結陽性高風險。Trastuzumab（9.18）：HER2 IHC 3+ 或 FISH+、事前審查；淋巴結陰性術前路徑需影像腫瘤 >2 cm，ER 陰性 pCR 合計 9 次（生物相似藥 Eirgasun 420 mg、Herzuma、Ogivri 18 次）、ER 陰性 non-pCR 接 T-DM1 合計 18 次（T-DM1 ≤14）、ER 陽性限上述生物相似藥 18 次；淋巴結陰性先手術限上述生物相似藥，須 ≥4 次化療，ER 陰性 >0.5 cm、ER 陽性 >1 cm，18 次；淋巴結陽性不論路徑可用。Pertuzumab／Phesgo（9.70）：早期限腋下淋巴結轉移。T-DM1（9.87）：術前 ≥6 次化療（≥3 次 taxane）與 ≥3 次 trastuzumab 後殘留病灶，且淋巴結陽性或 ER 陰性且腫瘤 >2 cm，術後 12 週內開始，≤14 次。Pembrolizumab（9.69）：早期三陰性第 II–IIIb 期（cT1c N1-2 或 T2-4 N0-2），術前 4＋4 次，術後限 non-pCR 單用 ≤9 次，合計 ≤17 次，術後與 olaparib 擇一。Olaparib：gBRCA、HER2 陰性高風險，完成 ≥6 次化療，三陰性 non-pCR 或 pN+／pT≥2 cm，HR 陽性 non-pCR 或 ≥4 顆陽性淋巴結，1 年。三陽性（ER/PR 陽性、HER2 陽性）＝標靶＋化療＋荷爾蒙並行。HER2 陽性或三陰性、腫瘤約 2 cm 以上常先做術前全身治療。治療選擇一律寫「依主治醫師決定」。
+【每次住院營養品】手術、人工血管、化療住院各自是一次實支雜費限額；醫囑開立且列在住院收據者才有申請依據；出院自費帶藥（益生菌、魚油、鈣 D3）是否給付依保單；自購營養品不理賠；住院與主訴必須反映實際醫療需要。`;
 let sampleFn=null,aiCtl=null,lastAI='';
 const AI_ERR={not_granted:'此頁未獲准使用 Claude，AI 功能已隱藏。',sampling_disabled:'此帳號無法使用 Claude。',rate_limited:'呼叫太頻繁或額度已滿，請稍後再試。',refused:'Claude 婉拒了這個請求，請調整內容後再試。',upstream_error:'連線中斷，請再試一次。',prompt_too_large:'資料太長，請減少項目。',session_expired:'請重新登入後再試。',empty_completion:'沒有產生內容，請再試一次。',invalid_request:'呼叫格式有誤。'};
-function setAiStatus(on,msg){const el=$('aiStatus');el.textContent=msg;el.className='pill '+(on?'on':'off');}
-(async()=>{try{sampleFn=(window.claude&&window.claude.use)?await window.claude.use('sample'):null;}catch(e){sampleFn=null;}
-  if(sampleFn){setAiStatus(true,'Claude：可用');}else{setAiStatus(false,'Claude：此環境不可用');$('btnAI').disabled=true;$('btnAsk').disabled=true;$('aiNote').textContent='在 claude.ai 中開啟本頁才能使用 Claude 專屬套餐；其餘功能不受影響。';}})();
-function caseJSON(){const s=state;const r=lastR||compute(s);return JSON.stringify({病患:{分期:STAGES[s.stage].label,受體:RECEPTORS[s.receptor],年齡:s.age,確診日:s.dx,預定手術日:s.surg,吸菸:!!s.smoker,糖尿病:!!s.dm},手術:{方式:r.op.label,英文:r.op.en,自費手術:r.op.selfpay,自費手術費:r.opFee,腋下:AXILLA[s.axilla],重建:RECON[s.recon],植入物費:r.implant},住院:{天數:r.days,病房:s.room,病房差額合計:r.roomDiff,PCA:r.pca,部分負擔:r.copay,重大傷病身分:s.nhicat},自費項目:r.items.map(i=>({名稱:i.name,金額:i.price,類別:POOL_LABEL[i.pool],價格來源:i.src==='pdf'?'講義':'估計'})),身分:{勞保:!!s.labor,投保薪資:s.salary,團保:!!s.group,團保日額:s.groupdaily,團保雜費:s.groupmisc},保單:s.policies,試算:{住院醫療自費:r.hospitalSelf,門診自費檢測:r.opd,實支團保可申請:r.reimbTotal,定額給付:r.fixedTotal,一次金:r.lumpTotal,勞保:r.labor,扣除理賠後自付:r.netHospital,各保單:r.lines},提醒:r.flags.map(f=>stripTags(f.t))},null,0);}
-function basePrompt(){return `你是醫學中心乳房外科個管師的保險與住院流程助理。只依據下方「資料」與「規則摘要」作答，不要捏造保單條款或數字；不確定之處明確寫「需向保險公司／主治醫師確認」。金額用新台幣整數。語氣專業精簡，可直接貼進病歷或衛教單。不要寫出任何醫院名稱或人名，一律稱「醫學中心」。
-
-請用繁體中文 Markdown 輸出，章節固定如下：
-## 1. 給個管師的重點（5–8 點）
-## 2. 理賠路徑與風險（依每張保單：可申請什麼、依據、最可能卡關處）
-## 3. 打電話給保險公司的逐字稿（依保單分段，每段結尾列出要記下的答案欄位）
-## 4. 給病患與家屬的白話套餐說明（住院前、住院中、出院後各 3–5 點，含文件與費用預期）
-## 5. 營養與照護提醒（針對此病患 5 點）
-## 6. 遺漏檢查（還缺哪些資料會影響理賠）
-
-## 資料
-${caseJSON()}
-
-## 規則摘要
-${RULES}`;}
 function mdToHtml(src){const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>');const lines=String(src).split(/\r?\n/);const out=[];let i=0;
   while(i<lines.length){const l=lines[i];if(/^\s*$/.test(l)){i++;continue;}let m;
     if((m=l.match(/^(#{1,6})\s+(.*)/))){const lv=Math.min(m[1].length+1,4);out.push(`<h${lv}>${inline(m[2])}</h${lv}>`);i++;continue;}
@@ -673,6 +723,28 @@ function mdToHtml(src){const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>
     if(/^\s*\d+[.)]\s+/.test(l)){let h='<ol>';while(i<lines.length&&/^\s*\d+[.)]\s+/.test(lines[i])){h+='<li>'+inline(lines[i].replace(/^\s*\d+[.)]\s+/,''))+'</li>';i++;}out.push(h+'</ol>');continue;}
     const p=[l];i++;while(i<lines.length&&!/^\s*$/.test(lines[i])&&!/^(#{1,6})\s|^\s*[-*•]\s|^\s*\d+[.)]\s|^\s*\|/.test(lines[i])){p.push(lines[i]);i++;}out.push('<p>'+inline(p.join(' '))+'</p>');}
   return out.join('');}
+
+function caseJSON(){const s=state;const r=lastR||compute(s);return JSON.stringify({病患:{分期:STAGES[s.stage].label,受體:RECEPTORS[s.receptor],年齡:s.age,停經狀態:{pre:'停經前',post:'停經後'}[s.meno]||'未確定',腫瘤大小cm:s.ctsize,確診日:s.dx,預定手術日:s.surg,吸菸:!!s.smoker,糖尿病:!!s.dm},手術:{方式:r.op.label,英文:r.op.en,自費手術:r.op.selfpay,自費手術費:r.opFee,腋下:AXILLA[s.axilla],重建:RECON[s.recon],植入物費:r.implant},住院:{天數:r.days,病房:s.room,病房差額合計:r.roomDiff,PCA:r.pca,部分負擔:r.copay,重大傷病身分:s.nhicat},自費項目:r.items.map(i=>({名稱:i.name,金額:i.price,類別:POOL_LABEL[i.pool],價格來源:i.src==='pdf'?'講義':'估計'})),身分:{勞保:!!s.labor,投保薪資:s.salary,團保:!!s.group,團保日額:s.groupdaily,團保雜費:s.groupmisc},保單:s.policies,試算:{住院醫療自費:r.hospitalSelf,門診自費檢測:r.opd,實支團保可申請:r.reimbTotal,定額給付:r.fixedTotal,一次金:r.lumpTotal,勞保:r.labor,扣除理賠後自付:r.netHospital,各保單:r.lines},提醒:r.flags.map(f=>stripTags(f.t)),術前治療可能性:{likely:'常見',consider:'可能討論'}[r.neo]||'一般先手術',術後治療決策點:buildAdjuvant(s,r).map(a=>({治療:a.t,時機:a.when,健保:a.nhi+(a.verify?'（'+a.verify+'）':''),自費:a.self,保險:a.ins})),每次住院營養品:ADMIT_NUTRI.map(x=>x[0]+'：'+x[1])},null,0);}
+function basePrompt(){return `你是醫學中心乳房外科個管師的保險與住院流程助理。只依據下方「資料」與「規則摘要」作答，不要捏造保單條款或數字；不確定之處明確寫「需向保險公司／主治醫師確認」。金額用新台幣整數。語氣專業精簡，可直接貼進病歷或衛教單。不要寫出任何醫院名稱或人名，一律稱「醫學中心」。
+
+請用繁體中文 Markdown 輸出，章節固定如下：
+## 1. 給個管師的重點（5–8 點）
+## 2. 理賠路徑與風險（依每張保單：可申請什麼、依據、最可能卡關處）
+## 3. 打電話給保險公司的逐字稿（依保單分段，每段結尾列出要記下的答案欄位）
+## 4. 給病患與家屬的白話套餐說明（住院前、住院中、出院後各 3–5 點，含文件與費用預期）
+## 5. 術後治療與長期費用（只列決策點與健保／自費／保險重點，治療選擇寫「依主治醫師決定」，不給藥物劑量）
+## 6. 營養與照護提醒（針對此病患 5 點，含每次住院可申請的營養品）
+## 7. 遺漏檢查（還缺哪些資料會影響理賠）
+
+## 資料
+${caseJSON()}
+
+## 規則摘要
+${RULES}`;}
+
+function setAiStatus(on,msg){const el=$('aiStatus');el.textContent=msg;el.className='pill '+(on?'on':'off');}
+(async()=>{try{sampleFn=(window.claude&&window.claude.use)?await window.claude.use('sample'):null;}catch(e){sampleFn=null;}
+  if(sampleFn){setAiStatus(true,'Claude：可用');}else{setAiStatus(false,'Claude：此環境不可用');$('btnAI').disabled=true;$('btnAsk').disabled=true;$('aiNote').textContent='在 claude.ai 中開啟本頁才能使用 Claude 專屬套餐；其餘功能不受影響。';}})();
 function aiBusy(b){$('btnAI').disabled=b||!sampleFn;$('btnAsk').disabled=b||!sampleFn;$('btnStop').disabled=!b;}
 function aiFail(e){const code=e&&e.code;if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(code)){sampleFn=null;setAiStatus(false,'Claude：未授權');$('aiNote').textContent=AI_ERR[code]||AI_ERR.not_granted;$('btnAI').disabled=true;$('btnAsk').disabled=true;return;}
   if(code==='cancelled'){$('aiNote').textContent='已停止。';return;}$('aiNote').textContent=AI_ERR[code]||AI_ERR.upstream_error;}
@@ -685,10 +757,79 @@ async function runAI(input,append){if(!sampleFn)return;aiCtl=new AbortController
 $('btnAI').addEventListener('click',()=>runAI(basePrompt(),false));
 $('btnStop').addEventListener('click',()=>{if(aiCtl)aiCtl.abort();});
 $('btnCopyAI').addEventListener('click',()=>copyText(lastAI));
+$('btnCopyPrompt').addEventListener('click',()=>copyText(basePrompt()));
+$('btnShowCodex').addEventListener('click',()=>{const v=$('codexIn').value.trim();if(!v){toast('請先貼上 Codex 產出');return;}lastAI=v;$('aiOut').innerHTML=mdToHtml(v);$('btnCopyAI').disabled=false;$('aiNote').textContent='已顯示 Codex 產出；內容請核對後使用。';});
 $('btnAsk').addEventListener('click',()=>{const q=$('askInput').value.trim();if(!q)return;const turns=[{role:'user',content:basePrompt()}];if(lastAI)turns.push({role:'assistant',content:lastAI.slice(-12000)});turns.push({role:'user',content:'追問：'+q+'\n請延續上述資料與規則作答，只回答追問，繁體中文 Markdown。'});$('askInput').value='';runAI(turns,true);});
 $('askInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('btnAsk').click();}});
 
-/* ---------- boot ---------- */
-renderConsumables();fillForm();renderPolicies();render();
+
+/* ---------- desktop UI ---------- */
+function tabs(attrBtn,attrPane,key,def){const btns=$$(`[${attrBtn}]`);
+  const show=v=>{btns.forEach(b=>b.setAttribute('aria-selected',String(b.getAttribute(attrBtn)===v)));$$(`[${attrPane}]`).forEach(p=>p.hidden=p.getAttribute(attrPane)!==v);pref(key,v);};
+  btns.forEach(b=>b.addEventListener('click',()=>show(b.getAttribute(attrBtn))));
+  const saved=pref(key);show(btns.some(b=>b.getAttribute(attrBtn)===saved)?saved:def);}
+
+const alertHtml=f=>`<div class="alert"><span class="lv ${f.lv}">${LV_LABEL[f.lv]}</span><div>${f.t}</div></div>`;
+const zero=v=>n(v)?fmt0(v):'<span class="zero">0</span>';
+
+var UI={render(s,r){
+  const net=r.netHospital, claim=r.reimbTotal+r.fixedTotal;
+  $('strip').innerHTML=`<p class="ctx">${esc(caseLine(s,r))}</p>
+    <div class="nums">
+      <div><span class="k">住院自費</span><span class="v">${fmt0(r.hospitalSelf)}<small>元</small></span></div>
+      <div><span class="k">實支＋定額可理賠</span><span class="v">${fmt0(claim)}<small>元</small></span></div>
+      <div class="key"><span class="k">${net>=0?'理賠後自付':'理賠後結餘'}</span><span class="v">${fmt0(Math.abs(net))}<small>元</small></span></div>
+    </div>
+    <div class="extra"><span>一次金 <b>${fmt0(r.lumpTotal)}</b></span><span>勞保傷病給付 <b>${fmt0(r.labor)}</b></span>${r.opd?`<span>門診自費檢測另計 <b>${fmt0(r.opd)}</b>（多數不理賠）</span>`:''}</div>`;
+  const fl=sortedFlags(r);const top=fl.filter(f=>f.lv==='bad'||f.lv==='warn');const rest=fl.filter(f=>!(f.lv==='bad'||f.lv==='warn'));
+  const openMore=$('alerts').querySelector('details')?.open;
+  $('alerts').innerHTML=(top.length?`<div class="alerts">${top.map(alertHtml).join('')}</div>`:'')+
+    (rest.length?`<details class="more-alerts"${openMore?' open':''}><summary>＋ 其他 ${rest.length} 則參考提醒</summary><div class="alerts">${rest.map(alertHtml).join('')}</div></details>`:'');
+  $('cnt_items').textContent=r.items.length+(r.pca?1:0)||'';
+  $('cnt_pol').textContent=s.policies.length||'';
+  // claims
+  const lines=r.lines.length?`<div class="tbl"><table><thead><tr><th>保單</th><th>項目</th><th class="r">預估（元）</th><th>依據</th></tr></thead><tbody>${r.lines.map(l=>l.rows.map((row,i)=>`<tr>${i===0?`<td rowspan="${l.rows.length}"><b>${esc(l.policy)}</b><div class="when">${esc(l.kind)}</div></td>`:''}<td>${esc(row[0])}</td><td class="r">${zero(row[1])}</td><td class="note">${esc(row[2])}</td></tr>`).join('')).join('')}
+    <tr class="total"><td colspan="2">實支＋定額</td><td class="r">${fmt0(claim)}</td><td class="note">一次金 ${fmt0(r.lumpTotal)}、勞保 ${fmt0(r.labor)} 另計</td></tr></tbody></table></div>`:'<p class="muted">尚未加入保單，到左側「保單」加入。</p>';
+  const items=[];
+  if(r.op.selfpay)items.push([r.op.label+' 手術費',r.opFee,'實支手術費（或併雜費）、手術險比照']);
+  if(r.implant)items.push([RECON[s.recon]+' 植入物',r.implant,'實支雜費、癌症險重建金']);
+  if(r.pca)items.push(['自控式止痛 PCA',r.pca,'實支雜費']);
+  if(r.roomDiff)items.push([(s.room==='single'?'單人房':'雙人房')+'差額 × '+r.days+' 天',r.roomDiff,'實支病房差額']);
+  if(r.copay)items.push(['健保部分負擔',r.copay,'實支雜費']);
+  r.items.forEach(it=>items.push([it.name,it.price,it.pool==='misc'?'實支雜費':(it.pool==='care'?'實支雜費（可能剔除）':'門診，多數不理賠')]));
+  $('out_claims').innerHTML=`<div class="panel-actions"><h3>各保單預估給付</h3><p>新制實支共同分攤實際費用；舊制各自給付；定額與一次金依條款比例。</p></div>${lines}
+    <details class="more"><summary>自費項目明細（${items.length} 項，${fmt0(r.hospitalSelf+r.opd)} 元）</summary>
+    <div class="tbl"><table><thead><tr><th>項目</th><th class="r">金額</th><th>可能理賠來源</th></tr></thead><tbody>${items.map(x=>`<tr><td>${esc(x[0])}</td><td class="r">${fmt0(x[1])}</td><td class="note">${esc(x[2])}</td></tr>`).join('')}</tbody></table></div></details>`;
+  // questions
+  const qs=buildQuestions(s,r);
+  $('out_call').innerHTML=`<div class="panel-actions"><p>依保單分組，照唸即可；答覆記在病歷。</p><button class="btn ghost sm" type="button" id="btnCopyQ">複製問題</button></div>`+
+    qs.map(g=>`<div class="qgroup"><h3>${esc(g.name)}${g.type?` <span class="tag">${esc(g.type)}</span>`:''}</h3><ol>${g.items.map(it=>`<li>${esc(it[0])}${it[1]?`<span class="why">${esc(it[1])}</span>`:''}</li>`).join('')}</ol></div>`).join('');
+  $('btnCopyQ').onclick=()=>copyText(qs.map(g=>'【'+g.name+'】\n'+g.items.map((it,i)=>(i+1)+'. '+it[0]).join('\n')).join('\n\n'));
+  // docs
+  $('out_docs').innerHTML=`<div class="panel-actions"><p>出院當天一次辦齊；病理分期出來後再補一份含分期的診斷書。</p></div><ul class="list">${buildDocs(s,r).map(d=>`<li>${d}</li>`).join('')}</ul>`;
+  // flow
+  $('out_flow').innerHTML=buildFlow(s,r).map((p,i)=>`<div class="phase"><div class="dot">${i+1}</div><div><div class="ph-head"><h3>${esc(p.title)}</h3><span class="when">${esc(p.when)}</span></div><div class="cols"><div><h4>醫院作業</h4><ul>${p.hosp.filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div><h4>個管師／保險</h4><ul>${p.mgr.filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div></div></div>`).join('');
+  // adjuvant
+  const adj=buildAdjuvant(s,r);
+  $('out_adj').innerHTML=`<div class="panel-actions"><p>會影響流程、自費與理賠的決策點，供和主治醫師確認；治療選擇與期間以主治醫師依現行指引決定。健保欄附來源標記；未見官網條文者，以健保署現行藥品給付規定為準。</p></div>
+    <div class="tbl"><table><thead><tr><th>治療</th><th>何時會用到（依主治醫師）</th><th>健保</th><th>自費／長期費用</th><th>可詢問的保險</th></tr></thead><tbody>${adj.map(a=>`<tr><td><b>${esc(a.t)}</b></td><td class="note">${esc(a.when)}</td><td class="note">${esc(a.nhi)}${a.verify?`<span class="est">${esc(a.verify)}</span>`:''}</td><td class="note">${esc(a.self)}</td><td class="note">${esc(a.ins)}</td></tr>`).join('')}</tbody></table></div>
+    <h3>每次住院的營養品與自費處方</h3>
+    <div class="tbl"><table><thead><tr><th>品項</th><th>說明</th></tr></thead><tbody>${ADMIT_NUTRI.map(x=>`<tr><td>${esc(x[0])}</td><td class="note">${esc(x[1])}</td></tr>`).join('')}</tbody></table></div>
+    <ul class="list">${NUTRI_RULES.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  // care
+  $('out_care').innerHTML=`<p class="muted" style="font-size:13px">一般原則，個別病患以主治醫師、營養師與復健師指示為準。</p><div class="care">${buildCare(s,r).map(c=>`<div><h3>${esc(c.h)}</h3><ul>${c.b.filter(Boolean).map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>`;
+}};
+
+const polHost=$('policies');
+renderConsumables($('consumables'));bindFields();bindPolicies(polHost);
+$('btnSuggest').addEventListener('click',applySuggest);
+$('btnAdd').addEventListener('click',()=>addPolicy($('f_newtype').value,polHost));
+$('btnReset').addEventListener('click',()=>resetCase(polHost));
+$('btnExample').addEventListener('click',()=>loadExample(polHost));
+$('btnCopy').addEventListener('click',()=>copyText(buildMarkdown()));
+tabs('data-ctab','data-cpane','ctab','case');
+tabs('data-otab','data-opane','otab','claims');
+fillForm();renderPolicies(polHost);refresh();
 })();
 </script>
+
