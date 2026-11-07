@@ -1,0 +1,36 @@
+{
+  "_about": "乳房內視鏡手術相關自費品項。price 為新台幣；src=pdf 表示價格來自醫學中心 2025/04 版 orientation 講義，src=est 為估計值（請填醫院報價）。pool：misc＝住院收據內醫材／藥品（實支雜費）、care＝住院收據內帶回材料（實支雜費，可能被認定非必要）、opd＝門診自費檢測（多數不理賠）。",
+  "items": [
+    {"id": "tisseel", "name": "Tisseel 組織纖維蛋白膠", "spec": "全切除 10 mL／部分切除 2 mL", "price": 11000, "src": "est", "pool": "misc", "when": "入院時詢問；講義：病人有保險給付時，連 SLND 也可開", "suggest": "always"},
+    {"id": "energy", "name": "內視鏡能量器械（LigaSure／超音波刀）", "spec": "內視鏡手術常用", "price": 25000, "src": "est", "pool": "misc", "when": "若醫院自費手術費已含器械請取消勾選", "suggest": "endo"},
+    {"id": "port", "name": "單孔套組 Glove port", "spec": "內視鏡入口", "price": 8000, "src": "est", "pool": "misc", "when": "若醫院自費手術費已含請取消勾選", "suggest": "endo"},
+    {"id": "exofin", "name": "Exofin 皮膚黏著劑", "spec": "講義：partial 1 支／simple 2 支（品項待確認）", "price": 4400, "src": "est", "pool": "misc", "when": "自費同意書生成系統開立、esign", "suggest": "always"},
+    {"id": "hemostat", "name": "可吸收性止血劑及敷料 1 g", "spec": "未納入健保給付", "price": 11099, "src": "pdf", "pool": "misc", "when": "出血風險高、ALND 或重建時較常用", "suggest": "alnd_or_recon"},
+    {"id": "alexis", "name": "Alexis 傷口保護撐開器", "spec": "XXS／Small", "price": 4500, "src": "est", "pool": "misc", "when": "", "suggest": "never"},
+    {"id": "stratafix", "name": "Stratafix 倒鉤可吸收縫線", "spec": "未納入健保給付", "price": 1960, "src": "pdf", "pool": "misc", "when": "重建或較長傷口", "suggest": "recon"},
+    {"id": "bra", "name": "術後衣（Imosa／Carefix）", "spec": "由專科護理師聯絡廠商選型號；Imosa XL 講義價", "price": 8680, "src": "pdf", "pool": "care", "when": "入院時開立，帶回材料", "suggest": "always"},
+    {"id": "belt", "name": "機能壓力束帶", "spec": "80–95／95–110 cm", "price": 2100, "src": "pdf", "pool": "care", "when": "部分切除／EnCor 需束胸", "suggest": "partial"},
+    {"id": "tape", "name": "矽敷貼 Silicone tape", "spec": "1.9 cm 198 元／2.5 cm 234 元，常開 2 條", "price": 468, "src": "pdf", "pool": "care", "when": "拆線後疤痕照護", "suggest": "always"},
+    {"id": "gel", "name": "除疤凝膠（倍舒痕／玻麗舒／赫麗敷）", "spec": "1,980／1,700／1,526 元", "price": 1980, "src": "pdf", "pool": "care", "when": "疤痕照護 3–6 個月", "suggest": "always"},
+    {"id": "sleeve", "name": "淋巴水腫袖套", "spec": "", "price": 3500, "src": "est", "pool": "care", "when": "ALND 後預防", "suggest": "alnd"},
+    {"id": "skin", "name": "保濕乳 1,200／玫瑰果油 990", "spec": "", "price": 2190, "src": "pdf", "pool": "care", "when": "放療或化療期間皮膚照護", "suggest": "partial"},
+    {"id": "nutri", "name": "住院期間醫師開立之營養補充品", "spec": "均衡配方 1–2 罐／日", "price": 1500, "src": "est", "pool": "care", "when": "食慾差時；自購營養品不理賠", "suggest": "never"},
+    {"id": "oncotype", "name": "Oncotype DX 基因檢測", "spec": "ER＋／HER2－／淋巴結陰性，決定是否化療", "price": 175000, "src": "pdf", "pool": "opd", "when": "多在門診以手術檢體送檢", "suggest": "erpos_invasive"},
+    {"id": "brca", "name": "Germline BRCA1/2 基因檢測", "spec": "符合條件可健保（如三陰性）；自費 25,000", "price": 25000, "src": "pdf", "pool": "opd", "when": "三陰性、≤40 歲或家族史時", "suggest": "tnbc_or_young"}
+  ],
+  "surgery_fee_defaults": {
+    "endo_nsm": {"label": "內視鏡輔助乳頭保留全切除（自費手術）", "fee": 80000, "src": "est"},
+    "endo_partial": {"label": "內視鏡輔助部分切除（自費手術）", "fee": 60000, "src": "est"},
+    "robot_nsm": {"label": "達文西機械手臂乳頭保留全切除（自費）", "fee": 300000, "src": "est"},
+    "open_total": {"label": "傳統乳房全切除（健保）", "fee": 0, "src": "nhi"},
+    "open_partial": {"label": "傳統乳房部分切除（健保）", "fee": 0, "src": "nhi"}
+  },
+  "other_defaults": {
+    "implant_fee": {"label": "義乳植入物", "fee": 90000, "src": "est"},
+    "expander_fee": {"label": "組織擴張器", "fee": 50000, "src": "est"},
+    "pca_fee": {"label": "自控式止痛 PCA", "fee": 6000, "src": "est"},
+    "room_double": {"label": "雙人房差額／日", "fee": 2000, "src": "est"},
+    "room_single": {"label": "單人房差額／日", "fee": 4500, "src": "est"},
+    "copay": {"label": "預估健保住院部分負擔（無重大傷病卡）", "fee": 6000, "src": "est"}
+  }
+}
